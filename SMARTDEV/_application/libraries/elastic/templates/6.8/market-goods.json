@@ -1,0 +1,212 @@
+{
+    "index_patterns": [
+        "market-goods-*"
+    ],
+
+    "settings": {
+
+        "index": {
+            "number_of_shards" : 5,
+            "number_of_replicas" : 0
+        },
+
+
+        "analysis": {
+
+            "analyzer": {
+                "eng_analyzer": {
+                    "type": "custom",
+                    "char_filter": ["html_strip"],
+                    "tokenizer": "standard",
+                    "filter": ["lowercase", "trim", "asciifolding", "stop_filter", "eng_synonym_filter"]
+                },
+                "nori_analyzer": {
+                    "type": "custom",
+                    "char_filter": ["html_strip"],
+                    "tokenizer": "nori_user_doc_tokenizer",
+                    "filter": ["trim", "asciifolding", "nori_stop_filter", "kor_synonym_filter"]
+                },
+                "strip_analyzer": {
+                    "type": "custom",
+                    "char_filter": ["html_strip"],
+                    "tokenizer": "standard",
+                    "filter": ["trim"]
+                }
+            },
+
+            "tokenizer": {
+                "nori_user_doc_tokenizer": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "mixed",
+                    "user_dictionary": "analysis/userdict_ko.txt"
+                }
+            },
+
+            "filter": {
+                "stop_filter": {
+                    "type": "stop",
+                    "stopwords": "_english_"
+                },
+                "eng_synonym_filter": {
+                    "type": "synonym",
+                    "ignore_case": true,
+                    "synonyms_path": "analysis/eng_synonym.txt"
+                },
+                "kor_synonym_filter": {
+                    "type": "synonym",
+                    "ignore_case": true,
+                    "synonyms_path": "analysis/kor_synonym.txt"
+                },
+                "nori_stop_filter": {
+                    "type": "nori_part_of_speech",
+                    "stoptags": [
+                        "E", "IC", "J", "MAG", "MAJ", "MM", "NA", "NR", "SC", "SF", "SH", "SL", "SN", "SP", "SSC", "SSO", "SY",
+                    "UNA", "UNKNOWN", "VA", "VCN", "VCP", "VSV", "VV", "VX", "XPN", "XR", "XSA", "XSN", "XSV"
+                    ]
+                }
+            }
+
+        }
+    }, 
+
+
+
+    "mappings": {
+
+        "_doc": {
+
+            "dynamic_templates": [
+                {
+                    "to_keywords": {
+                        "match":   "*_keyword",
+                        "mapping": {
+                            "type": "keyword"
+                        }
+                    }
+                },
+                {
+                    "to_integers": {
+                        "match":   "*_integer",
+                        "mapping": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                {
+                    "to_texts": {
+                        "match":   "*_text",
+                        "mapping": {
+                            "type": "text"
+                        }
+                    }
+                },
+                {
+                    "to_float": {
+                        "match":   "*_float",
+                        "mapping": {
+                            "type": "float"
+                        }
+                    }
+                },
+                {
+                    "to_date": {
+                        "match": "*_date",
+                        "mapping": {
+                            "format" : "yyyy-MM-dd HH:mm:ss",
+                            "ignore_malformed" : true,
+                            "type" : "date"
+                        }
+                    }
+                },
+                {
+                    "to_string": {
+                        "match": "*_string",
+                        "mapping": {
+                            "type" : "text",
+                            "fields": {
+                                "raw": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+
+
+
+
+
+            "properties": {
+               
+                "mg_id": {"type" : "keyword"},
+                "mg_market_goods_code": {"type" : "keyword"},
+                "mg_market": {"type" : "keyword"},
+                "mg_name": {"type": "text"},
+                "mg_trans_names": {
+                    "properties" : {
+                        "kr" : {
+                            "analyzer" : "nori_analyzer",
+                            "type" : "text"
+                        },
+                        "en" : {
+                            "analyzer" : "eng_analyzer",
+                            "type" : "text"
+                        },
+                        "cn" : {
+                            "type" : "text"
+                        }
+                    }
+                },
+                "mg_import_enname": {"type": "text"},
+                "mg_url_key": {"type" : "text"},
+                "mg_list_img": {"type" : "keyword"},
+                "mg_view_imgs": {
+                    "type": "object",
+                    "enabled": false
+                },
+                "mg_cate1_id": {"type" : "keyword"},
+                "mg_cate2_id": {"type" : "keyword"},
+                "mg_cate3_id": {"type" : "keyword"},
+                "mg_catepath_id": {"type": "text"},
+                "mg_cate1_name": {"type": "text"},
+                "mg_cate2_name": {"type": "text"},
+                "mg_cate3_name": {"type": "text"},
+                "mg_is_active": {"type": "keyword"},
+                "mg_price": {"type": "float"},
+                "mg_quantity": {"type": "integer"},
+                "mg_description": {"type" : "text"},
+                "mg_weight_kg" : {"type": "float"},
+                "mg_weight_lbs" : {"type": "float"},
+                "mg_has_options": {"type" : "keyword"},
+                "mg_options": {
+                    "properties": {}
+                },
+                "mg_color": {
+                    "type": "object",
+                    "enabled": false
+                },
+                "mg_size": {
+                    "type": "object",
+                    "enabled": false
+                },
+                "mg_created_at": {
+                    "format" : "yyyy-MM-dd HH:mm:ss",
+                    "ignore_malformed" : true,
+                    "type" : "date"
+                },
+                "mg_updated_at": {
+                    "format" : "yyyy-MM-dd HH:mm:ss",
+                    "ignore_malformed" : true,
+                    "type" : "date"
+                },
+                "mg_raw_data": {
+                    "type": "text",
+                    "index": false
+                }
+
+            }
+        }
+    }
+}

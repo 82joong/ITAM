@@ -1,0 +1,15 @@
+TRUNCATE TABLE ip_tb;
+TRUNCATE TABLE assets_ip_map_tb;
+TRUNCATE TABLE assets_model_tb;
+TRUNCATE TABLE custom_field_tb;
+TRUNCATE TABLE custom_field_map_tb;
+TRUNCATE TABLE custom_value_tb;
+TRUNCATE TABLE direct_ip_map_tb;
+TRUNCATE TABLE fieldset_tb;
+TRUNCATE TABLE maintenance_tb;
+TRUNCATE TABLE model_custom_field_tb;
+TRUNCATE TABLE models_tb;
+TRUNCATE TABLE order_tb;
+TRUNCATE TABLE order_item_tb;
+TRUNCATE TABLE vmservice_ip_map_tb;
+TRUNCATE TABLE vmservice_tb;

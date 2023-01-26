@@ -1,0 +1,119 @@
+<?php
+/**
+ * MakeShop Platinum
+ *
+ * @package MakeShop Platinum
+ * @author ROOT TF Team
+ * @copyright Copyright (c) 2016, KOREACENTER.COM, Inc. (http://makeshop.co.kr/)
+ */
+defined('BASEPATH') or exit('No direct script access allowed');
+
+/**
+ * {table} Model
+ *
+ * @package MakeShop Platinum
+ * @author ROOT TF Team
+ * @created
+ */
+
+class {table}_model extends MY_Model
+{
+
+    protected $pk = {pk};
+<!-- COMMENT START -->
+    // NOT NULL 필드들에대한 정의. 각 모델에서 재정의
+<!-- COMMENT END -->
+    protected $emptycheck_keys = array(<!-- LOOP START emptycheck -->
+        '{field}' => '{comment} 값이 누락되었습니다.',<!-- LOOP END emptycheck -->
+    );
+<!-- COMMENT START -->
+    // ENUM 필드마다 가질 수 있는 값들을 KEY => VALUE 형태의 배열로 정의. 각 모델에서 재정의
+
+    // $this->{table}_model->getCodeTextMap('필드명') 으로 'enum' 에 set된 배열을,
+    // $this->{table}_model->getCodeTextMap('필드명', '상태코드') 으로 $enumcheck_keys[$map_key]['enum']['상태코드'] 텍스트를 반환받을수있다.
+<!-- COMMENT END -->
+    protected $enumcheck_keys = array(<!-- LOOP START enumcheck -->
+        '{field}'       => array( 
+            'enum'          => {enum_array},
+            'message'       => '{comment} 값이 관리되지 않는 값입니다.',
+        ),<!-- LOOP END enumcheck -->
+    );
+<!-- COMMENT START -->
+    // 필드는 아니지만 관리할 코드들을 그룹별로 정의.
+    // ex)
+    // protected $code_text_map = array(
+    //     'use_yn'   => array('Y' => '사용', 'N' => '사용안함'),
+    //     'apply_yn' => array('Y' => '적용', 'N' => '적용안함'),
+    // );
+    // 식의 것들 채우면.
+    // $this->{table}_model->getCodeTextMap('use_yn') 으로 배열을,
+    // $this->{table}_model->getCodeTextMap('use_yn', 'N') 으로 "사용안함" 텍스트를 반환받을수있다.,
+<!-- COMMENT END -->
+    protected $code_text_map = array();
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->db_name = _SHOP_INFO_DATABASE_;
+        $this->table   = strtolower(substr(__CLASS__, 0, -6));
+        $this->fields  = $this->db->list_fields($this->table);
+    }
+<!-- COMMENT START -->
+    /**
+     * doInsert($params) 즉 insert 처리하려는 파라메터 배열이 여기를 거쳐간다.
+     * default 값이 없는 필드 혹은 insert시 강제로 채울 값은
+     * $params['필드명'] = 값;
+     * 형태로 정의하면 insert문에 반영된다.
+     */
+<!-- COMMENT END -->
+    protected function __filter($params)
+    {
+<!-- LOOP START fill_insert_date -->        $params['{time_field}'] = date('Y-m-d H:i:s');
+<!-- LOOP END fill_insert_date -->        return $params;
+    }
+
+    protected function __validate($params)
+    {
+        $success = parent::__validate($params);
+        if ($success === true) {<!-- COMMENT START -->
+            // emptycheck_keys, enumcheck_keys 외 추가로 검사할 부분이 있으면
+            // 여기에서 검사. 데이터에 문제 발견시
+
+            // $this->setErrorResult("문제발견 내용");
+            // return false;
+
+            // 형태로 정의할것.
+<!-- COMMENT END -->
+        }
+        return $success;
+    }
+<!-- COMMENT START -->
+    /**
+     * doInsert($params) 즉 insert 처리하려는 파라메터 배열이 여기를 거쳐간다.
+     * default 값이 없는 필드 혹은 insert시 강제로 채울 값은
+     * $params['필드명'] = 값;
+     * 형태로 정의하면 insert문에 반영된다.
+     */
+<!-- COMMENT END -->
+    protected function __updateFilter($params)
+    {
+<!-- LOOP START fill_update_date -->        $params['{time_field}'] = date('Y-m-d H:i:s');
+<!-- LOOP END fill_update_date -->        return $params;
+    }
+
+    protected function __updateValidate($params)
+    {
+        $success = parent::__updateValidate($params);
+        if ($success === true) {<!-- COMMENT START -->
+            // emptycheck_keys, enumcheck_keys 외 추가로 검사할 부분이 있으면
+            // 여기에서 검사. 데이터에 문제 발견시
+
+            // $this->setErrorResult("문제발견 내용");
+            // return false;
+
+            // 형태로 정의할것.
+<!-- COMMENT END -->
+        }
+        return $success;
+    }
+}

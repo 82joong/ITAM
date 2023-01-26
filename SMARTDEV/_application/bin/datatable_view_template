@@ -1,0 +1,222 @@
+<?php 
+//$page_css[] = "";
+
+//include left panel (navigation)
+//follow the tree in inc/config.ui.php
+require_once realpath(dirname(__FILE__).'/../').'/inc/config.ui.php';
+
+
+$mode = 'list';
+$active_key = array(
+    "{controller_name}",     // 1 Depth menu
+    "{method_name}"          // 2(Sub) Depth menu
+);
+$page_nav[$active_key[0]]["sub"][$active_key[1]]["active"] = true;
+include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
+
+
+$title_symbol = 'fa-caret-square-right';
+?>
+
+<style text/type="css">
+
+</style>
+
+
+<main id="js-page-content" role="main" class="page-content">
+
+    <?php include realpath(dirname(__FILE__).'/../').'/inc/breadcrumbs.php'; ?>
+
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="panel">
+                <div class="panel-hdr">
+                    <h2>Table</h2>
+                   
+		            <!-- LOOP START add_button1 -->
+                    <div class="panel-toolbar">
+                        <a href="/<?=SHOP_INFO_ADMIN_DIR?>/{controller_name}/{edit_method_name}" class="btn btn-sm btn-success waves-effect waves-themed">
+                            <span class="fal fa-plus-square mr-1"></span> Add New Row
+                        </a>
+                    </div>
+		            <!-- LOOP END add_button1 -->
+                </div>
+
+                <div class="panel-container show">
+                    <div class="panel-content">
+                        
+                        <table id="data-table" class="table table-sm table-striped table-bordered table-hover" style="width:100%">
+                            <thead class="bg-highlight">
+                                <tr>
+                                    <!-- LOOP START col_model -->
+                                    <th data-name="{name}" data-type="{stype}" data-op="{sop}" {soptions}>{field_title}</th>
+                                    <!-- LOOP END col_model -->
+
+		                            <!-- LOOP START add_button2 -->
+                                    <th style="width:48px;"></th>
+		                            <!-- LOOP END add_button2 -->
+                                </tr>
+                            </thead>
+                            
+                        </table>
+
+     
+                    </div>
+                <div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- this overlay is activated only when mobile menu is triggered -->
+<div class="page-content-overlay" data-action="toggle" data-class="mobile-nav-on"></div> 
+<!-- END Page Content -->
+
+<script src="<?=$assets_dir?>/js/colfilter.datatable.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+    // Setup - add a text input to each footer cell
+    $('#data-table thead tr').clone(true).appendTo('#data-table thead');
+
+    var table = $('#data-table').DataTable({
+        "pageLength"    : 50,               // Paging Unit
+        "orderCellsTop" : true, 
+        "fixedHeader"   : true, 
+        "processing"    : true,
+        "serverSide"    : true,
+        "searching"     : true,
+        "responsive"    : true,
+        "select"        : "single",
+        "order"         : [[0, "desc"]],    // Default Sorting
+        "ajax": {
+            "url": "/<?=SHOP_INFO_ADMIN_DIR?>/{controller_name}/{method_name}",
+            "type": "POST",
+            "dataType": "JSON",
+            "data": {
+                "mode": "list",
+            }
+        },
+        "columns": [
+            <!-- LOOP START columns -->
+            {"data": "{name}"},
+            <!-- LOOP END columns -->
+            <!-- LOOP START add_button3 -->
+            {
+                "data": null,
+                "className": "text-center",
+                "defaultContent": ''
+            }<!-- LOOP END add_button3 -->
+        ],
+        // Define columns class 
+        "columnDefs": [
+            <!-- LOOP START coldefs -->
+            { "className": "text-{align}", "orderable": {sortable}, "targets": {idx} },
+            <!-- LOOP END coldefs -->
+
+            <!-- LOOP START add_button4 -->
+            {
+                targets: -1,
+                title: '',
+                orderable: false,
+                render: function(data, type, full, meta) {
+
+                    var pk = '';
+                    for(var k in data) {
+                        pk = data[k];
+                        break;
+                    }
+
+                    var btn_class = "btn btn-sm btn-icon";
+                    var btn_act = "";
+                    /*
+                    // delete button
+                    var btn_act = "<a href='javascript:deleteRow("+pk+");' class='"+btn_class+" btn-outline-danger mr-1' title='Delete Record'>";
+                    btn_act += "<i class='fal fa-times'></i>";
+                    btn_act += "</a>";
+                    */
+                    btn_act += "<a href='/<?=SHOP_INFO_ADMIN_DIR?>/{controller_name}/{edit_method_name}/"+pk+"' class='"+btn_class+" btn-outline-info' title='Edit Record'>";
+                    btn_act += "<i class='fal fa-edit'></i>";
+                    btn_act += "</a>"
+
+                    return btn_act;
+                }
+            }
+            <!-- LOOP END add_button4 -->
+
+        ],
+
+        "dom":
+            /*  --- Layout Structure 
+                --- Options
+                l   -   length changing input control
+                f   -   filtering input
+                t   -   The table!
+                i   -   Table information summary
+                p   -   pagination control
+                r   -   processing display element
+                B   -   buttons
+                R   -   ColReorder
+                S   -   Select
+
+                --- Markup
+                < and >             - div element
+                <"class" and >      - div with a class
+                <"#id" and >        - div with an ID
+                <"#id.class" and >  - div with an ID and a class
+
+                --- Further reading
+                https://datatables.net/reference/option/dom
+                --------------------------------------
+             */
+              "<'row mb-3'"
+                + "<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'f>"
+                + "<'col-sm-12 col-md-8 d-flex align-items-center justify-content-end'B<'mt-1 ml-1'l>>"
+            + ">" 
+            + "<'row'<'col-sm-12'tr>>"
+            + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+
+        "buttons": [
+            {
+                "extend": 'colvis',
+                "text": 'Column Visibility',
+                "titleAttr": 'Col visibility',
+                "className": 'btn-outline-default'
+            }, 
+            {
+                "extend": 'csvHtml5',
+                "text": 'CSV',
+                "titleAttr": 'Generate CSV',
+                "className": 'btn-outline-default'
+            },
+            {
+                "extend": 'copyHtml5',
+                "text": 'Copy',
+                "titleAttr": 'Copy to clipboard',
+                "className": 'btn-outline-default'
+            },
+            {
+                "extend": 'print',
+                "text": 'Print',
+                "titleAttr": 'Print Table',
+                "className": 'btn-outline-default'
+            }
+        ] 
+    });
+
+
+    // Search Box Event
+    $('input[type="search"]').unbind();
+    $('input[type="search"]').on('keypress', function(e) {
+        if(e.keyCode == 13) {
+            table.search(this.value).draw();
+        }
+    });
+
+
+    // Generate Search Filter 
+    generatorColFilter('data-table', table);
+
+});
+</script>

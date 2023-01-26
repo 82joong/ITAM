@@ -1,0 +1,167 @@
+<?php
+   // 서버와 통신하기 위한 모듈
+   // 제작일 : 2007/06/13
+   // 제작자 : 임성진 
+
+   if (strpos(getenv("SCRIPT_NAME"),"serialize_lib.html")>0) { Header("HTTP/1.0 404 Not Found");exit; }
+
+   class mycall {
+    var $host;          // 접속호스트
+    var $script_name;       // 스크립트 네임
+    var $query_string;      // 쿼리스트링 (배열)
+    var $file_upload;       // 파일업로드 ( filename=@/home/httpd/html/data.txt )
+    var $method;            // cgi방식
+    var $ssl;           // ssl여부 (true/false);
+
+    var $recv;          // 수신된 데이터
+    var $query_cnt;         // 변수개수체크
+
+    function mycall() {
+        $this->query_string = array();
+        $this->file_upload = "";
+        $this->method = "POST";
+        $this->ssl = false;
+        $this->query_cnt = 0;
+    }
+
+
+    // cgi변수를 넣는다.
+    function add($name,$value) {
+
+        //파일업로드이면 
+        if (substr($value,0,1)=="@") $value = shell_replace($value);
+
+        $this->query_string[$name] = $value;
+
+    }
+
+
+    // cgi array로 넣는다.
+    function add_array($arr) {
+
+        if (is_array($arr)==false) return;
+    
+        foreach($arr as $key => $val) {
+            $this->query_string[$key] = $val;
+        }
+    }   
+    // query_string을 만든다. 
+    function make_query_string() { 
+        if (!is_array($this->query_string)) die("query_string 은 배열이어야 합니다.");
+
+        $this->recv = "";
+        $this->query_cnt = 0;
+
+        $data = "";
+        foreach ($this->query_string as $key => $val) {
+
+            if ($this->method!="MULTI")
+                $data .= "$key=".urlencode($val)."&";
+            else {
+                if (substr($val,0,1)=="@") { // 파일경로이면 urlencode를 하지 않은다.
+                    $val = shell_replace($val);
+                    $data .= " -F ".escapeshellarg("$key=$val");
+                }
+                else
+                    $data .= " -F ".escapeshellarg("$key=".urlencode($val));
+            }
+
+            $this->query_cnt++;
+        }
+
+        return $data;
+    }
+
+
+    // 실행
+    function exec() {
+        if (empty($this->host)) die("!");
+        if (empty($this->script_name)) die("스크립트이름이 없습니다.");
+        if (substr($this->script_name,0,1)!="/") die("스크립트이름은 /로 시작합니다. ex) /index.html ");
+
+        $exec = "http";
+        if ($this->ssl == true) $exec.="s";
+
+        $exec.= "://$this->host$this->script_name";
+
+        $data = $this->make_query_string();
+
+        //멀티파트
+        if (strlen($this->file_upload)>0)
+            $this->method = "MULTI";
+
+        if ($this->method == "GET") {
+            if ($this->query_cnt!=0) $exec.= "?$data";
+            $exec = escapeshellarg($exec);
+        } else if ($this->method == "POST") {
+            $exec = escapeshellarg($exec);
+            if ($this->query_cnt!=0) $exec.= " -d ".escapeshellarg($data);
+        } else if ($this->method == "MULTI") {
+            $exec = escapeshellarg($exec);
+            if ($this->query_cnt!=0) $exec.= $data;
+        } else die("method는 GET과 POST만 지원합니다.");
+
+        $this->recv = shell_exec("/usr/local/bin/curl -k -s ".$exec);
+    }
+    // 수신데이터
+    function get_data() {
+        if (strlen($this->recv)>0) return $this->recv;
+    }
+
+    function get_array_data() {
+        if (strlen($this->recv)>0) return unserialize($this->recv);
+    }
+
+   }
+
+
+   class myreturn {
+    var $r;
+
+    function myreturn() {
+        $this->r = array();
+    }
+
+    // 리턴될 변수
+    function add($name,$value) {
+        $this->r[$name] = $value;
+    }
+
+    // 리턴될 변수(array로처리)
+    function add_array($arr) {
+
+        if (is_array($arr)==false) return;
+        foreach($arr as $key => $val) {
+            $this->r[$key] = $val;
+        }
+    }
+
+    // serialize
+    function put($type="") {
+        echo serialize($this->r);
+        if ($type == "exit") exit;
+    }
+   }
+
+      //한글 문자열 자르는 함수
+   if (!function_exists('hanguel_cut')) {
+       function hanguel_cut($str,$len,$cutchar) {
+            $temp = $str;
+            for($i = 0; $i < $len; $i++) if(ord($temp[$i])> 127) $i++;
+            $temp = chop(substr($temp, 0, $i ));
+            if (strlen($str)>$len) $temp=$temp.$cutchar;
+            return $temp;
+       }
+   }
+
+   // 쉘실행가능 문자 치환
+   if (!function_exists('shell_replace')) {
+       function shell_replace($word) {
+           $tmp1 = array("!","|",";","..","&","'","\"","$","[","]","{","}","\\",",","?","~","(",")"," ");
+           $tmp2 = array("","","","","","","","","","","","","","","","","","","");
+
+           return str_replace($tmp1,$tmp2,$word);
+       }
+   }
+   
+?>

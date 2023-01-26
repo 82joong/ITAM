@@ -1,0 +1,103 @@
+.font-75rem {
+    font-size: 0.75rem!important;
+    line-height: 0.8rem!important;
+}
+
+/*.dz-image img {width: 80px; height: auto;}*/
+
+.form-label {font-weight: 600;}
+th {font-weight: 600;}
+
+.form-control-xs {
+    height: calc(1em + .375rem + 2px) !important;
+    padding: .125rem .25rem !important;
+    font-size: .75rem !important;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+tr.child {font-size: 11px !important;}
+td pre {font-size: 11px !important; overflow-x:auto; max-width:500px;}
+
+
+/* SYSLOG facility */
+.badge-kern {color: #fff; background-color: #ccbfdf;}         /* primary-50  */
+.badge-user {color: #fff; background-color: #ffd274;}         /* warning-300 */
+.badge-mail {color: #fff; background-color: #0960a5;}         /* info-900    */
+.badge-daemon {color: #fff; background-color: #51adf6;}       /* info-300    */
+.badge-auth {color: #fff; background-color: #feb7d9;}         /* danger-50   */
+.badge-syslog {color: #fff; background-color: #179c8e;}       /* success-700 */
+.badge-lpr {color: #fff; background-color: #da9400;}          /* warning-900 */
+.badge-news {color: #fff; background-color: #37e2d0;}         /* success-300 */
+.badge-uucp {color: #fff; background-color: #ffebc1;}         /* warning-50  */
+.badge-cron {color: #fff; background-color: #9acffa;}         /* info-50     */
+.badge-security {color: #fff; background-color: #fc077a;}     /* danger-700  */
+.badge-ftp {color: #fff; background-color: #886ab5;}          /* primary-500 */
+.badge-ntp {color: #fff; background-color: #a38cc6;}          /* primary-300 */
+.badge-logaudit {color: #fff; background-color: dimgray;}     /* fusion-300  */
+.badge-logalert {color: #fff; background-color: #fd3995;}     /* danger-500  */
+.badge-clock {color: #fff; background-color: #7aece0;}        /* success-50  */
+.badge-local0, .badge-local1, .badge-local2, .badge-local3 {color: #fff; background-color: #909090;}         /* fusion-50  */
+.badge-local4, .badge-local5, .badge-local6, .badge-local7 {color: #fff; background-color: #909090;}         /* fusion-50  */
+
+
+
+
+/* SYSLOG priority */
+.badge-emerg {color: #fff; background-color: #feb7d9;}         /* danger-50  */
+.badge-alert {color: #fff; background-color: #fe6bb0;}          /* danger-300 */
+.badge-crit {color: #fff; background-color: #fc077a;}           /* danger-700 */
+.badge-err {color: #fff; background-color: #ce0262;}            /* danger-900 */
+/*.badge-warning {color: #fff; background-color: #868e96;} */
+.badge-notice {color: #fff; background-color: #886ab5;}         /* primary */
+/*.badge-info {color: #fff; background-color: #868e96;} */
+.badge-debug {color: #fff; background-color: #868e96;}          /* secondary */
+
+
+/* SYSLOG category */
+.border-vmkernel {border-color: #868e96 !important;}            /* secondary */
+.text-vmkernel {color: #868e96 !important;}
+.border-greensheild {border-color: #1dc9b7 !important;}         /* success */
+.text-greensheild {color: #1dc9b7 !important;}
+.border-virus {border-color: #ffc241 !important;}               /* warning */
+.text-virus {color: #ffc241 !important;}
+.border-phperror {border-color: #fd3995 !important;}            /* danger */
+.text-phperror {color: #fd3995 !important;}
+.border-radius {border-color: #886ab5 !important;}              /* primary */
+.text-radius {color: #886ab5 !important;}
+.border-secure {border-color: #2196f3 !important;}              /* info */
+.text-secure {color: #2196f3 !important;}
+.border-syslog {border-color: #107066 !important;}              /* success-900 */
+.text-syslog {color: #107066!important;}
+.border-etc {border-color: #505050 !important;}                 /* dark */
+.text-etc {color: #505050 !important;}
+
+
+/* SYSLOG SSH */
+.badge-mysql {color: #fff; background-color: dimgray;}       /* fusion-300  */
+.badge-message {color: #fff; background-color: #ffd274;}     /* warning-300 */
+.badge-sftp {color: #fff; background-color: #886ab5;}        /* primary-500 */
+.badge-syslogd {color: #fff; background-color: #179c8e;}     /* success-700 */
+.badge-etc {color: #fff; background-color: #0960a5;}         /* info-900    */
+
+
+code.dark {background:#2d2d2d; color:#f8c555;}
+
+
+blockquote {
+    border-left: 5px solid #f86466;
+    background: white;
+}
+
+pre {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.42857143;
+    color: #333;
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

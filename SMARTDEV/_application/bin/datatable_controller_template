@@ -1,0 +1,40 @@
+	public function {method_name}() {
+		$this->load->model('{database}/{table_name}_model');
+		$sess = $this->session->userdata('admin');
+		$req = $this->input->post();
+
+        $data = array();
+
+		if(isset($req['mode']) && $req['mode'] == 'list') {
+			// ajax reqeust. ==> grid list data 
+
+            $out_data = array();
+            $params = array();
+            $extras = array();
+
+            $params = $this->common->transDataTableFiltersToParams($req);
+            $extras = $this->common->transDataTableFiltersToExtras($req);
+
+
+            $count = $this->{table_name}_model->getCount($params, $extras)->getData();
+            $rows = $this->{table_name}_model->getList($params, $extras)->getData();
+
+            $data = array();
+            foreach($rows as $k=>$r){
+                $data[] = $r;
+            }
+
+            $json_data = new stdClass;
+            $json_data->draw = $req['draw'];
+            $json_data->recordsTotal = $count;
+            $json_data->recordsFiltered = $count;
+            $json_data->data = $data;
+
+            //echo print_r($json_data); exit;
+            echo json_encode($json_data);
+            return;
+
+		}
+		
+		$this->_view('{view_path}', $data);
+	}

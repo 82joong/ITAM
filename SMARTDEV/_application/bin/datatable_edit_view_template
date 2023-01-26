@@ -1,0 +1,212 @@
+<?php 
+//$page_css[] = "";
+
+//include left panel (navigation)
+//follow the tree in inc/config.ui.php
+require_once realpath(dirname(__FILE__).'/../').'/inc/config.ui.php';
+
+
+$active_key = array(
+    "{controller_name}",          // 1 Depth menu
+    "{method_name}"               // 2(Sub) Depth menu
+);
+$page_nav[$active_key[0]]["sub"][$active_key[1]]["active"] = true;
+include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
+
+?>
+
+
+
+<!-- ==========================CONTENT STARTS HERE ========================== -->
+<!-- MAIN PANEL -->
+<style type="text/css">
+</style>
+
+
+<main id="js-page-content" role="main" class="page-content">
+ 
+    <ol class="breadcrumb page-breadcrumb">
+        <li class="breadcrumb-item"><a href="/<?=SHOP_INFO_ADMIN_DIR?>">Home</a></li>
+        <li class="breadcrumb-item"><?=$page_nav[$active_key[0]]['title']?></li>
+        <li class="breadcrumb-item active">
+            <a href="<?=$page_nav[$active_key[0]]['sub'][$active_key[1]]['url']?>">
+                <?=$page_nav[$active_key[0]]['sub'][$active_key[1]]['title']?>
+            </a>
+        </li>
+        <li class="position-absolute pos-top pos-right d-none d-sm-block"><span class="js-get-date"></span></li>
+    </ol>
+    <div class="subheader">
+        <h1 class="subheader-title">
+            <i class='subheader-icon fal fa-caret-square-right'></i> 
+            <?=$page_nav[$active_key[0]]['sub'][$active_key[1]]['title']?>: 
+            <span class='fw-300'><?=ucfirst($mode)?></span>
+            <?php if(isset($page_nav[$active_key[0]]['sub'][$active_key[1]]['description'])) : ?>
+            <small><?=$page_nav[$active_key[0]]['sub'][$active_key[1]]['description']?></small>
+            <?php endif; ?>
+        </h1>
+    </div>
+
+
+    <div class="row">
+        <form name='edit_form' id="edit_form" class="needs-validation" action="{edit_process_url}" method="POST" novalidate autocomplete="off" >
+        <input type="hidden" name="mode" value="<?=$mode?>">
+        <input type="hidden" name="<?=$pk?>" value="<?=$values[$pk]?>">
+
+        <div class="col-xl-12">
+            <div class="panel">
+                <div class="panel-hdr">
+                    <h2>Row <?=ucfirst($mode)?></h2>
+                   
+                    <div class="panel-toolbar">
+                        <button type="submit" class="btn-save mr-1 btn btn-sm btn-success waves-effect waves-themed">
+                            <span class="fal fa-save mr-1"></span> Save 
+                        </button>
+
+                        <a href="/<?=SHOP_INFO_ADMIN_DIR?>/{controller_name}/{method_name}" class="btn btn-sm btn-danger waves-effect waves-themed">
+                            <span class="fal fa-times mr-1"></span> Cancle/List
+                        </a>
+                    </div>
+                </div>
+
+                <div class="panel-container show">
+                    <div class="panel-content">
+
+                        <div class="form-row form-group justify-content-md-center">
+						<!-- LOOP START field_list -->
+
+                            <!-- LOOP START input_text -->
+                            <div class="col-12 col-lg-8 mb-3">
+                                <label class="form-label" for="validation_{field}">
+                                    {field_title} 
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="input" class="form-control" id="validation_{field}" name="{field}" placeholder="{field_title}" required value="<?=$values['{field}']?>">
+                                <div class="invalid-feedback">
+                                    Please provide a {field_title}.
+                                </div>
+                            </div>
+							<!-- LOOP END input_text -->
+
+							<!-- LOOP START textarea -->
+                            <div class="col-12 col-lg-8 mb-3 input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">{field_title}</span>
+                                </div>
+                                <textarea class="form-control" name="{field}" aria-label="With textarea"><?=$values['{field}']?></textarea>
+                            </div>
+							<!-- LOOP END textarea -->
+
+							<!-- LOOP START date -->
+                            <div class="col-12 col-lg-8 mb-3 mt-3">
+                                <label class="form-label">
+                                    {field_title} 
+                                </label>
+                                <input type="text" class="form-control" name="{field}" value="<?=date('Y-m-d', strtotime($values['{field}']))?>">
+                            </div>
+							<!-- LOOP START date -->
+
+					        <!-- LOOP START text -->
+							<?php if($values['{pk}'] > 0 && '{pk}' == '{field}') : ?>
+                            <div class="col-12 col-lg-8 mb-3">
+                                <label class="form-label">
+                                    {fields_title}} 
+                                </label>
+                                <input type="text" class="form-control" name="{field}" value="<?=$values['field']?>" disabled >
+                            </div>
+                            <?php endif;?>
+
+                            <!-- LOOP START date_time -->
+                            <?php
+                                ${field}_date = "";
+                                ${field}_time = "";
+                                if(isset($values['{field}']) && $values['{field}'] != 0) :
+                                    ${field}_date = date('Y-m-d', strtotime($values['{field}']));
+                                    ${field}_time = date('H:i:s', strtotime($values['{field}']));
+                                endif;
+                            ?>
+                            <div class="col-12 col-lg-8">
+                                <label class="form-label mb-2">
+                                    {field_title} 
+                                </label>
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control datepicker" readonly="" placeholder="Select Date" name="{field}_date"  value="<?=${field}_date?>" >
+                                    <div class="input-group-append">
+                                        <span class="input-group-text fs-xl">
+                                            <i class="fal fa-calendar"></i>
+                                        </span>
+                                    </div>
+
+
+                                    <input type="text" class="form-control clockpicker" readonly="" placeholder="Select Time" name="{field}_time" value="<?=${field}_time?>" >
+                                    <div class="input-group-append">
+                                        <span class="input-group-text fs-xl">
+                                            <i class="fal fa-clock"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('.datepicker').datepicker({
+                                    format:         'yyyy-mm-dd',
+                                    todayBtn:       'linked',
+                                    clearBtn:       true,
+                                    orientation:    'top right',
+                                    todayHighlight: true,
+                                    timePicker:     true,
+                                    autoclose:      true,
+                                });
+                                $('.clockpicker').clockpicker({
+                                    'placement':    'top',
+                                    'align':        'left',
+                                    'autoclose':    true,
+                                    'default':      'note'
+                                });
+                            });
+                            </script>
+							<!-- LOOP END date_time -->
+
+                        </div>
+						<!-- LOOP END field_list -->
+                    </div>
+
+
+
+                    <div class="panel-content py-2 rounded-bottom border-faded border-left-0 border-right-0 border-bottom-0 text-muted d-flex">
+
+                        <button type="submit" class="btn-save mr-1 btn btn-sm btn-success waves-effect waves-themed ml-auto">
+                            <span class="fal fa-save mr-1"></span> Save 
+                        </button>
+
+
+                        <a href="/<?=SHOP_INFO_ADMIN_DIR?>/{controller_name}/{method_name}?keep=yes" class="btn btn-sm btn-danger waves-effect waves-themed">
+                            <span class="fal fa-times mr-1"></span> Cancle/List 
+                        </a>
+                    </div>
+
+
+                <div>
+            </div>
+        </div>
+
+        </form>
+    </div>
+</main>
+
+
+
+<form name='del_form' id="del_form" action="{edit_process_url}" method="POST">
+    <input type='hidden' name='mode' value='delete' />
+	<input type='hidden' name='<?=$pk?>' value='<?=$values[$pk]?>' />
+</form>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+});
+
+</script>
