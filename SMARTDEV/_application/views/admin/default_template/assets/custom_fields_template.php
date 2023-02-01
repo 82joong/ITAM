@@ -3,12 +3,12 @@
     <input type="hidden" name="fieldset_id" value="<?=$fieldset_data['fs_id']?>">
     <span class="badge border border-danger text-danger mr-2">Custom Fields</span>
 
-    <?php if($mode == 'insert') : ?>
+    <?php /* if($mode == 'insert') : ?>
     <b><?=$fieldset_data['fs_name']?></b>
     <a href="/admin/manage/fieldset_detail/<?=$fieldset_data['fs_id']?>" target="_blank" class="btn btn-primary btn-xs waves-effect waves-themed ml-3 ">
         <i class="fal fa-external-link"></i> Detail
     </a>
-    <?php endif; ?>
+    <?php endif; */ ?>
 </div>
 <hr />
 

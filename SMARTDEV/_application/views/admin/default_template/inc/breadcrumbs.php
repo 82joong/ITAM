@@ -28,9 +28,10 @@
             $pg_tit = $page_point['title'];
             $pg_ico = isset($page_point['icon']) ? $page_point['icon'] : $title_symbol;
             $pg_dst = isset($page_point['description']) ? $page_point['description'] : '';
+            $pg_url = isset($page_point['url']) ? $page_point['url'] : '/';
             $pg_i18n = $i18n;
 
-            echo '<a href="'.$page_point['url'].'" data-i18n="'.$i18n.'">'.$pg_tit.'</a>';
+            echo '<a href="'.$pg_url.'" data-i18n="'.$i18n.'">'.$pg_tit.'</a>';
         }else {
             echo '<span data-i18n="'.$i18n.'">'.ucfirst($v).'</span>';
         }

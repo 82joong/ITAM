@@ -443,9 +443,19 @@ class Syslog extends Base_admin {
                 $req['columns'][1]['search']['value'] = $ni_str;
             }
 
+		
+	    
+	    // doc_id 검색시, 키워드 처리 
+	    if(strlen($req['columns'][0]['search']['value']) > 0) {
+		$req['columns'][0]['data'] = 'doc_id.keyword';
+		$req['columns'][0]['name'] = 'doc_id.keyword';
+	    }
+
+
             //echo print_r($req);
             $multiple_filters = array();
-            $index_name = 'syslogssh-'.date('Y');
+            //$index_name = 'syslogssh-'.date('Y');
+            $index_name = 'syslogssh-*';
             $params = $this->elastic->datatable_filter_to_params($req, $index_name, $multiple_filters);
             //echo print_r($params); exit;
 
@@ -479,7 +489,7 @@ class Syslog extends Base_admin {
 
             $json_data = new stdClass;
             $json_data->draw = $req['draw'];
-            if(isset($el_result['error'])) {
+            if( !is_array($el_result) || isset($el_result['error']) ) {
                 //echo 'QUERY ERROR';
                 //$json_data->error_msg = $el_result['error']['type'];
                 //$json_data->status  = $el_result['status'];
@@ -502,6 +512,7 @@ class Syslog extends Base_admin {
 
             $category = '';
 			$data = array();
+	    //echo print_r($el_result); exit;
             foreach($el_result['hits']['hits'] as $k=>$r){
 
                 $type_html = '<span class="badge badge-'.strtolower($r['_source']['type_keyword']).'">';
@@ -510,6 +521,7 @@ class Syslog extends Base_admin {
                 
                 $row = array(
                     'id'            => $r['_source']['id'],
+                    'doc_id'        => $r['_source']['doc_id'],
                     'user'          => $r['_source']['user'],
                     'name'          => $r['_source']['user'],
                     'userip'        => $r['_source']['userip'],
@@ -520,6 +532,8 @@ class Syslog extends Base_admin {
                     'message'       => htmlspecialchars($r['_source']['message']),
                     'regdate'       => $r['_source']['regdate'],
                     '@timestamp'    => date('Y-m-d H:i:s', strtotime($r['_source']['@timestamp'])),
+
+		    'stm_id'	    => '',
                     'track_code'    => '',
                     'memo'          => '',
                 );
@@ -527,6 +541,24 @@ class Syslog extends Base_admin {
 				$data[] = $row;
             }
             //echo print_r($data); exit;
+
+	    
+	    // @Get doc_id 
+            $doc_ids = array_keys($this->common->getDataBypk($data, 'doc_id'));
+            //echo print_r($doc_ids); exit;
+            if( sizeof($doc_ids) > 0 ) {
+
+                $this->load->model(array(
+                    'ssh_track_map_tb_model',
+                ));
+
+                $params = array();
+                $params['in']['stm_ssh_id'] = $doc_ids;
+                $extras = array();
+                $stm_data = $this->ssh_track_map_tb_model->getList($params,$extras)->getData();
+                $stm_data = $this->common->getDataByPK($stm_data, 'stm_ssh_id');
+            }
+
 
             // @Get UserName
             $user_ids = array_keys($this->common->getDataBypk($data, 'user'));
@@ -546,8 +578,11 @@ class Syslog extends Base_admin {
                     }
                     $v['name'] = $name;
 
-                    $v['track_code'] = '';
-                    $v['memo'] = '';
+		    if( isset($stm_data[$v['doc_id']]) ) {
+			 $v['stm_id'] = $stm_data[$v['doc_id']]['stm_id'];
+			 $v['track_code'] = $stm_data[$v['doc_id']]['stm_track_code'];
+			 $v['memo'] = $stm_data[$v['doc_id']]['stm_memo'];
+             	    }
                 }
             }
             //echo print_r($data); exit;
@@ -1455,4 +1490,241 @@ class Syslog extends Base_admin {
 
 		$this->_view('syslog/common_template', $data);
     }
+
+
+    public function stm_process() {
+    
+        $req = $this->input->post();
+        if($this->input->is_ajax_request()) {
+            $req['request'] = 'ajax';
+        }
+        //echo print_r($req); //exit;
+
+        $this->load->model(array(
+            'ssh_track_map_tb_model',
+        ));
+
+
+        $sess = array();
+        $ajax_res = array(
+            'is_success'    => FALSE,
+            'msg'           => ''
+        );
+        $log_array = array();
+        $row_data = array();
+
+        //echo print_r($req).PHP_EOL; //exit;
+        $rtn_url = '/'.SHOP_INFO_ADMIN_DIR.'/syslog/ssh_detail/'.$req['stm_id'];
+        //echo $rtn_url; exit;
+        
+        $field_list = $this->ssh_track_map_tb_model->getFields();
+        $data_params = array();
+        foreach($field_list as $key) {
+                       if(array_key_exists($key, $req)) {
+                               $data_params[$key] = $req[$key];
+                               continue;
+                       }
+                       if(array_key_exists($key.'_date', $req) && array_key_exists($key.'_time', $req)) {
+                               $data_params[$key] = $req[$key.'_date'].' '.$req[$key.'_time'];
+                       }
+               }
+
+
+
+        // 삭제 & 업데이트 시 기존데이터 검증
+        $row_data = array();
+        if($req['mode'] == 'update' || $req['mode'] == 'delete') {
+            if( ! $this->ssh_track_map_tb_model->get($req['stm_id'])->isSuccess()) {
+                $log_array['msg'] = getAlertMsg('INVALID_SUBMIT');
+                if($req['msg'] == 'ajax') {
+                    $ajax_res['msg'] = $log_array['msg'];
+                    echo json_encode($ajax_res);
+                }else {
+                    $this->common->alert($log_array['msg']);
+                    $this->common->locationhref($rtn_url);
+                    $this->common->write_history_log($sess, $req['mode'].' - FAIL', $req['stm_id'], $log_array, 'ssh_track_map_tb');
+                }
+                return;
+            }
+            $row_data = $this->ssh_track_map_tb_model->getData();
+
+            $log_array['prev_data'] = $row_data;
+        }
+        //echo print_r($data_params).PHP_EOL; exit;
+
+
+        switch($req['mode']) {
+
+            case 'delete':
+                
+                $data_params = array();
+                $log_array['params'] = $data_params;
+                if( ! $this->ssh_track_map_tb_model->doDelete($req['stm_id'])->isSuccess()) {
+                    $log_array['msg'] = $this->ssh_track_map_tb_model->getErrorMsg();
+                    if($req['request'] == 'ajax') {
+                        $ajax_res['msg'] = $log_array['msg'];
+                        echo json_encode($ajax_res);
+                    }else {
+                        $this->common->alert($log_array['msg']);
+                        $this->common->locationhref($rtn_url);
+                        $this->common->write_history_log($sess, $req['mode'].' - FAIL', $req['stm_id'], $log_array, 'ssh_track_map_tb');
+                    }
+                    return;
+                }
+
+                if($req['request'] == 'ajax') {
+                    $ajax_res['is_success'] = true; 
+                    echo json_encode($ajax_res);
+                }else {
+                    $this->common->locationhref($rtn_url);
+                }
+                return;
+                break;
+
+
+            case 'update':
+
+                $log_array['params'] = $data_params;
+                if( ! $this->ssh_track_map_tb_model->doUpdate($req['stm_id'], $data_params)->isSuccess()) {
+                    $log_array['msg'] = $this->ssh_track_map_tb_model->getErrorMsg();
+
+                    if($req['request'] == 'ajax') {
+                        $ajax_res['msg'] = $log_array['msg'];
+                        echo json_encode($ajax_res);
+                    }else {
+                        $this->common->alert($log_array['msg']);
+                        $this->common->locationhref($rtn_url);
+                        $this->common->write_history_log($sess, $req['mode'].' - FAIL', $req['stm_id'], $log_array, 'ssh_track_map_tb');
+                    }
+                    return;
+                }
+
+                $this->common->write_history_log($sess, 'UPDATE', $req['stm_id'], $log_array, 'ssh_track_map_tb');
+                break;
+
+
+            case 'insert':
+
+                if( ! isset($data_params['stm_track_code'])) {
+                    $log_array['msg'] = getAlertMsg('REQUIRED_VALUES'); 
+
+                    if($req['request'] == 'ajax') {
+                        $ajax_res['msg'] = $log_array['msg'];
+                        echo json_encode($ajax_res);
+                    }else {
+                        $this->common->alert($log_array['msg']);
+                        $this->common->locationhref($rtn_url);
+                    }
+                    return;
+                }
+                       
+                $data_params['stm_created_at'] = date('Y-m-d H:i:s');
+                unset($data_params['stm_id']);
+
+                $log_array['params'] = $data_params;
+                //echo print_r($data_params); exit;
+                if( ! $this->ssh_track_map_tb_model->doInsert($data_params)->isSuccess()) {
+                    $log_array['msg'] = $this->ssh_track_map_tb_model->getErrorMsg();
+
+                    if($req['request'] == 'ajax') {
+                        $ajax_res['msg'] = $log_array['msg'];
+                        echo json_encode($ajax_res);
+                    }else {
+                        $this->common->alert($log_array['msg']);
+                        $this->common->locationhref($rtn_url);
+                    }
+                    return;
+                }
+
+                               $act_key = $this->ssh_track_map_tb_model->getData();
+                $this->common->write_history_log($sess, 'INSERT', $act_key, $log_array, 'ssh_track_map_tb');
+                break;
+        }
+
+
+        if($req['request'] == 'ajax') {
+            $ajax_res['is_success'] = true;
+            echo json_encode($ajax_res);
+        }else {
+            $this->common->locationhref($rtn_url);
+        }
+
+    }
+
+
+
+
+    
+    public function ajax_get_trackinfo() {
+    
+               $this->load->model(array(
+            'ssh_track_map_tb_model',
+        ));
+
+               $this->load->business(array(
+        ));
+
+        $this->load->library(array('elastic'));
+
+        $ajax_res = array(
+            'is_success'    => FALSE,
+            'msg'           => ''
+        );
+
+        $req = $this->input->post();
+
+        if( ! isset($req['doc_id']) ) {
+            $ajax_res['msg'] = getAlertMsg('INVALID_SUBMIT');    
+            echo json_encode($ajax_res);
+            return;
+        }
+        
+
+        $year = substr(trim($req['doc_id']), 0, 4);
+        /*
+        $doc_code = explode('-', trim($req['doc_id']));
+        $doc_id = $doc_code[1];
+         */
+
+        $el_header = $this->elastic->get_auth_header();
+        $index_name = 'syslogssh-'.$year;
+
+        $el_url = ELASTIC_SYSLOG_HOST.'/'.$index_name.'/_doc/'.trim($req['doc_id']);
+        $el_result = $this->elastic->restful_curl($el_url, '', 'GET', $timeout=10, $el_header);
+        $el_result = json_decode($el_result, true);
+        //echo print_r($el_result);
+
+
+        if( isset($el_result['_source']) ) {
+            $ajax_res['is_success'] = TRUE;
+            $ajax_res['msg'] = $el_result['_source'];
+
+            $stm_data = $this->ssh_track_map_tb_model->get(array('stm_ssh_id' => $el_result['_source']['doc_id']))->getData();
+
+            if( is_array($stm_data) && sizeof($stm_data) > 0 ) {
+                $ajax_res['msg']['stm_id'] = $stm_data['stm_id'];
+                $ajax_res['msg']['stm_track_code'] = $stm_data['stm_track_code'];
+                $ajax_res['msg']['stm_memo'] = $stm_data['stm_memo'];
+                $ajax_res['msg']['mode'] = 'update';
+            }else {
+                $ajax_res['msg']['stm_id'] = '';
+                $ajax_res['msg']['stm_track_code'] = '';
+                $ajax_res['msg']['stm_memo'] = '';
+                $ajax_res['msg']['mode'] = 'insert';
+            }
+
+        } else {
+            $ajax_res['msg'] = getAlertMsg('DATA_NOT_EXITS');    
+        }
+
+        echo json_encode($ajax_res);
+        return;
+
+    }
+
+
+
+
+
+
 }

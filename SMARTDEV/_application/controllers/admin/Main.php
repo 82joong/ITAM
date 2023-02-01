@@ -329,6 +329,7 @@ class Main extends Base_admin {
             'permission'        => unserialize($admin['a_permission']),
             'is_changed_pw'     => $admin['a_is_changed_pw'],
             'ip'                => $_SERVER['REMOTE_ADDR'],
+	    'permission'	=> array()
         );
 
         // 추가된 권한에 대한 관리자 세션별 디폴트 처리

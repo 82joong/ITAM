@@ -65,6 +65,15 @@ function getAlertMsg($code, $lang='kr') {
             'kr'    => '이메일 발송에 실패 했습니다.',
             'en'    => 'Failed send mail!. Confirm your mail data.'
         ),
+	'DATA_NOT_EXIST' => array(
+            'kr'    => '존재하지 않는 데이터 입니다.',
+            'en'    => 'Data does not exists.'
+        ),
+        'CONTRACT_MANAGER' => array(
+            'kr'    => '(오류) 관리자에게 문의하세요.',
+            'en'    => 'Plz Contact the manager.'
+        ),
+
     );
     return $msg[$code][$lang];
 }
