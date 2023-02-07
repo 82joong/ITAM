@@ -101,7 +101,7 @@ $sel_class = array(
                                     $icon = '';
 
                                     $class = 'btn-outline-info';
-                                    if(isset($r['ip_id']) && $ipc_id == $r['ipc_id']) {
+                                    if(isset($r['ipc_id']) && $ipc_id == $r['ipc_id']) {
                                         $class = 'btn-info';
                                         $sel_class = $r;
                                     }

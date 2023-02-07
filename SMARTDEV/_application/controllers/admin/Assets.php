@@ -261,6 +261,18 @@ class Assets extends Base_admin {
         $disabled = '';
         $ct_id = '';
 
+	// Direct Init
+	$init_direct = array(
+	    'mode'                => 'insert',
+	    'dim_id'              => '',
+	    'dim_assets_model_id' => '',
+	    'ip_id'               => '',
+	    'ip_address' 	  => '',
+	    'ip_memo'             => '',
+	    'ip_class_id'         => '',
+	    'ip_class_type'       => '',
+	    'ip_class_category'   => '',
+	);
 
         // VMWare Init
         $data['vmware'] = array(
@@ -268,7 +280,14 @@ class Assets extends Base_admin {
             'aim_id'              => '',
             'aim_assets_model_id' => '',
             'ip_id'               => '',
-            'ip_memo'             => ''
+            'ip_address'          => '',
+            'ip_memo'             => '',
+            'ip_class_id'         => '',
+            'ip_class_type'       => '',
+            'ip_class_category'   => '',
+            'ipc_location_id'     => '',
+            'ipc_cidr'   	  => '',
+            'ipc_name'   	  => '',
         );
         // date set 
         $data['idrac'] = $data['vmware'];
@@ -339,17 +358,12 @@ class Assets extends Base_admin {
 
             // Direct IP
             $dim_data = $this->direct_ip_map_tb_business->getDirectIP($row['am_id']);
+	    //echo print_r($dim_data); exit;
             if(sizeof($dim_data) > 0) {
                 $data['direct'] = $dim_data;
                 $data['direct']['mode'] = 'update';
             }else {
-                $data['direct'] = array(
-                    'mode'                => 'insert',
-                    'dim_id'              => '',
-                    'dim_assets_model_id' => '',
-                    'ip_id'               => '',
-                    'ip_memo'             => ''
-                );
+                $data['direct'] = $init_direct; 
             }
 
 
@@ -411,6 +425,11 @@ class Assets extends Base_admin {
             }
 
             $row['am_assets_type_id'] = $data['assets_type_id'];
+	    $data['direct'] = $init_direct;
+	    $data['service'] = array(
+		'mode'	=> 'insert',	    
+		'sm_id'	=> '',	    
+	    );
         }
 
         $data['mode'] = $mode;
@@ -1264,7 +1283,11 @@ class Assets extends Base_admin {
 
 
     public function ip_total($id=0) {
-        $data = array();
+	    $data = array(
+	    	'ipc_id' 	=> '',
+	    	'ipc_type' 	=> '',
+	    	'ipc_catetory' 	=> '',
+	    );
 
 		$this->load->model(array(
             'ip_tb_model',
@@ -1306,7 +1329,6 @@ class Assets extends Base_admin {
         $data['rows'] = $rows;
         $data['location_map'] = $this->location_tb_business->getNameMap();
 
-        //echo print_r($data);
 		$this->_view('assets/ip_total', $data);
     }
 
@@ -1771,7 +1793,7 @@ class Assets extends Base_admin {
             // VMWare
             $am_ids = array($req['assets_model_id']);
             $res = $this->assets_model_tb_business->getVMWareIP($am_ids);
-            $vmware_data = $res[$req['assets_model_id']];
+            $vmware_data = isset($res[$req['assets_model_id']]) ? $res[$req['assets_model_id']] : array();
 
             $data = array();
             foreach($rows as $k=>$r){

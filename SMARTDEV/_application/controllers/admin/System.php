@@ -1011,7 +1011,7 @@ class System extends Base_admin {
 
         $location_code = $this->location_tb_business->getCodeMap();
         $data['location_map'] = json_encode($location_code);
-        $data['l_code'] = $location_code[$row['ipc_location_id']];
+        $data['l_code'] = isset($location_code[$row['ipc_location_id']]) ? $location_code[$row['ipc_location_id']] : '';
 
 		$this->_view('system/ipclass_detail', $data);
     }
@@ -1305,7 +1305,7 @@ class System extends Base_admin {
             }
 
             $vms_name = '';
-            if( isset($r['am_id']) ) {
+            if( isset($r['am_id']) && isset($r['vms_name']) ) {
                 $assets_link = '/admin/assets/detail/servers/'.$r['am_id'].'#tab_vmware';
                 $vms_name = nameToLinkHtml($assets_link, $r['vms_name'], '_blank');
             }
@@ -1872,7 +1872,7 @@ class System extends Base_admin {
                     $tmp['am_name']             = nameToLinkHtml($assets_link, $aim_data[$ip]['am_name'], '_blank');
                     $tmp['am_models_name']      = $aim_data[$ip]['am_models_name'];
                     $tmp['am_vmware_name']      = $aim_data[$ip]['am_vmware_name'];
-                    $tmp['am_serial_no']        = $aim_idata[$ip]['am_serial_no'];
+                    $tmp['am_serial_no']        = $aim_data[$ip]['am_serial_no'];
                     $tmp['am_rack_code']        = $aim_data[$ip]['am_rack_code'];
                     $tmp['ip_memo']             = $aim_data[$ip]['ip_memo'];
                     $tmp['ip_id']               = $aim_data[$ip]['ip_id'];

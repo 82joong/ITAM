@@ -2104,10 +2104,9 @@ class Manage extends Base_admin {
     }
 
 
-    public function supplier_detail($id=0) {
+    public function supplier_detail($id=0, $mode='clone') {
 
 		$this->load->model('supplier_tb_model');
-
         $row = array();
 		$id = intval($id);
 
@@ -2116,7 +2115,14 @@ class Manage extends Base_admin {
                 $mode = 'update';
             }
             $row = $this->supplier_tb_model->get($id)->getData();
-            $row['sp_address'] = explode('<br />', $row['sp_address']);
+	    if( strlen($row['sp_address']) > 0) {
+            	$row['sp_address'] = explode('<br />', $row['sp_address']);
+	    }else { 
+		$row['sp_address'] = array(
+			0 => '', 
+			1 => ''
+		);
+	    }
 
         }else {
 
@@ -2126,6 +2132,10 @@ class Manage extends Base_admin {
             foreach($fields as $f) {
                 $row[$f] = ''; 
             }
+	    $row['sp_address'] = array(
+		0 => '', 
+		1 => ''
+	    );
         }
 
         $data = array();
@@ -2658,7 +2668,7 @@ class Manage extends Base_admin {
 
         $location_code = $this->location_tb_business->getCodeMap();
         $data['location_map'] = json_encode($location_code);
-        $data['l_code'] = $location_code[$row['r_location_id']];
+        $data['l_code'] = isset($location_code[$row['r_location_id']]) ? $location_code[$row['r_location_id']] : '';
 
 		$this->_view('manage/rack_detail', $data);
     }
