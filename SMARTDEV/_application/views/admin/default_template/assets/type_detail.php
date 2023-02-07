@@ -811,19 +811,19 @@ $title_symbol = 'fa-server';
                                             <label class="form-label" for="ipc_location_id">
                                                 Location 
                                             </label>
-                                            <?=getInputMask('normal', 'ipc_location_id', $row['ipc_location_id'], 'readonly')?>
+                                            <?=getInputMask('normal', 'ipc_location_id', isset($row['ipc_location_id']) ? $row['ipc_location_id'] : '', 'readonly')?>
                                         </div>
                                         <div class="form-group col-4">
                                             <label class="form-label" for="ipc_cidr">
                                                 CIDR 
                                             </label>
-                                            <?=getInputMask('normal', 'ipc_cidr', $row['ipc_cidr'], 'readonly')?>
+                                            <?=getInputMask('normal', 'ipc_cidr', isset($row['ipc_cidr']) ? $row['ipc_cidr'] : '', 'readonly')?>
                                         </div>
                                         <div class="form-group col-4 pr-0">
                                             <label class="form-label" for="ipc_name">
                                                 IP Class Name 
                                             </label>
-                                            <?=getInputMask('normal', 'ipc_name', $row['ipc_name'], 'readonly')?>
+                                            <?=getInputMask('normal', 'ipc_name', isset($row['ipc_name']) ? $row['ipc_name'] : '', 'readonly')?>
                                         </div>
                                     </div>
 

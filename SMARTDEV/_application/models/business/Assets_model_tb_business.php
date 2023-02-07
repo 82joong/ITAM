@@ -72,7 +72,7 @@ class Assets_model_tb_business extends MY_Model
         $extras = array();
         $extras['fields'] = array(
             'aim_id','aim_assets_model_id','aim_ip_id',
-            'ip_id','ip_address','ip_class_type','ip_class_category','ip_memo'
+            'ip_id','ip_address','ip_class_id','ip_class_type','ip_class_category','ip_memo'
         );
 
         $data = $this->assets_ip_map_tb_model->getList($params, $extras)->getData();

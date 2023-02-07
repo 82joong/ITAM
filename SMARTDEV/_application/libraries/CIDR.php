@@ -20,9 +20,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class CIDR {
 
 
+	/*
     public function __construct() {
     
     }
+	 */
 
 
 
@@ -39,7 +41,7 @@ class CIDR {
      * @static
      * @return String Netmask ip address
      */
-    public function CIDRtoMask($int) {
+    function CIDRtoMask($int) {
         return long2ip(-1 << (32 - (int)$int));
     }
 
@@ -55,7 +57,7 @@ class CIDR {
      * @static
      * @return bool True if the input is valid.
      */
-    public static function validIP($ipinput) {
+    function validIP($ipinput) {
         return filter_var($ipinput, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
     }
 
@@ -73,7 +75,7 @@ class CIDR {
      * unt-the-number-of-set-bits-in-a-32-bit-integer
      * @return int number of bits set.
      */
-    public static function countSetbits($int){
+    function countSetbits($int){
         $int = $int & 0xFFFFFFFF;
         $int = ( $int & 0x55555555 ) + ( ( $int >> 1 ) & 0x55555555 ); 
         $int = ( $int & 0x33333333 ) + ( ( $int >> 2 ) & 0x33333333 );
@@ -100,7 +102,7 @@ class CIDR {
      * @static
      * return bool True if a valid netmask.
      */
-    public static function validNetMask($netmask){
+    function validNetMask($netmask){
         $netmask = ip2long($netmask);
         if($netmask === false) return false;
         $neg = ((~(int)$netmask) & 0xFFFFFFFF);
@@ -119,9 +121,9 @@ class CIDR {
      * @static
      * @return int CIDR number.
      */
-    public static function maskToCIDR($netmask){
-        if(self::validNetMask($netmask)){
-            return self::countSetBits(ip2long($netmask));
+    function maskToCIDR($netmask){
+        if($this->validNetMask($netmask)){
+            return $this->countSetBits(ip2long($netmask));
         }
         else {
             //throw new Exception('Invalid Netmask');
@@ -143,9 +145,9 @@ class CIDR {
      * @static
      * @return String CIDR block.
      */
-    public static function alignedCIDR($ipinput, $netmask){
+    function alignedCIDR($ipinput, $netmask){
         $alignedIP = long2ip((ip2long($ipinput)) & (ip2long($netmask)));
-        return "$alignedIP/" . self::maskToCIDR($netmask);
+        return "$alignedIP/" . $this->maskToCIDR($netmask);
     }
 
     /**
@@ -164,9 +166,9 @@ class CIDR {
      * @static
      * @return String CIDR block.
      */
-    public static function IPisWithinCIDR($ipinput, $cidr){
+    function IPisWithinCIDR($ipinput, $cidr){
         $cidr = explode('/',$cidr);
-        $cidr = self::alignedCIDR($cidr[0],self::CIDRtoMask((int)$cidr[1]));
+	$cidr = $this->alignedCIDR($cidr[0],$this->CIDRtoMask((int)$cidr[1]));
         $cidr = explode('/',$cidr);
         $ipinput = (ip2long($ipinput));
         $ip1 = (ip2long($cidr[0]));
@@ -189,8 +191,8 @@ class CIDR {
      * @static
      * @return int CIDR number.
      */
-    public static function maxBlock($ipinput) {
-        return self::maskToCIDR(long2ip(-(ip2long($ipinput) & -(ip2long($ipinput)))));
+    function maxBlock($ipinput) {
+        return $this->maskToCIDR(long2ip(-(ip2long($ipinput) & -(ip2long($ipinput)))));
     }
 
     /**
@@ -214,11 +216,11 @@ class CIDR {
      * @see http://null.pp.ru/src/php/Netmask.phps
      * @return Array CIDR blocks in a numbered array.
      */
-    public static function rangeToCIDRList($startIPinput, $endIPinput=NULL) {
+    function rangeToCIDRList($startIPinput, $endIPinput=NULL) {
         $start = ip2long($startIPinput);
         $end =(empty($endIPinput))?$start:ip2long($endIPinput);
         while($end >= $start) {
-            $maxsize = self::maxBlock(long2ip($start));
+            $maxsize = $this->maxBlock(long2ip($start));
             $maxdiff = 32 - intval(log($end - $start + 1)/log(2));
             $size = ($maxsize > $maxdiff)?$maxsize:$maxdiff;
             $listCIDRs[] = long2ip($start) . "/$size";
@@ -242,7 +244,7 @@ class CIDR {
      * @param $cidr string CIDR block
      * @return Array low end of range then high end of range.
      */
-    public static function cidrToRange($cidr) {
+    function cidrToRange($cidr) {
         $range = array();
         $cidr = explode('/', $cidr);
         $range[0] = long2ip((ip2long($cidr[0])) & ((-1 << (32 - (int)$cidr[1]))));
