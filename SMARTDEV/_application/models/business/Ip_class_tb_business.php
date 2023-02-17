@@ -179,4 +179,39 @@ class Ip_class_tb_business extends MY_Model
         return $json_data;
     } 
 
+
+    public function genIPUsedPie($ipc_data, $used_cnt=0, $title='TOTAL', $type='normal') {
+    
+        $this->load->library('CIDR');
+        $ipc = $this->cidr->cidrToRange($ipc_data['ipc_cidr']);    
+        $ip_total = (ip2long($ipc[1]) - ip2long($ipc[0])) + 1;
+        //echo $ip_total; exit;
+        $pct = ($used_cnt / $ip_total) * 100;
+
+        $class = array(
+            'border' => '',
+            'color'  => '',
+            'scale'  => ''
+        );
+        if($type == 'normal') {
+            $class = array(
+                'border' => 'border-faded border-top-0 border-bottom-0 pl-3 pr-3',
+                'color'  => 'color-danger-500',
+                'scale'  => 'data-scalelength="2"'
+            );
+        }
+        $ip_total = $used_cnt.'/'.$ip_total;
+
+        $pie_chart_html = '<div class="subheader-block d-none d-sm-flex align-items-center '.$class['border'].'">';
+        $pie_chart_html .= '<div class="d-inline-flex flex-column justify-content-center mr-3">';
+        $pie_chart_html .= '<span class="fw-300 fs-xs d-block opacity-50"><small>'.$title.'</small></span>';
+        $pie_chart_html .= '<span class="fw-500 fs-xl d-block color-info-500">'.$ip_total.'</span>';
+        $pie_chart_html .= '</div>';
+        $pie_chart_html .= '<span class="js-easy-pie-chart position-relative d-flex align-items-center justify-content-center '.$class['color'].'" data-percent="'.$pct.'" '.$class['scale'].'>';
+        $pie_chart_html .= '<span class="js-percent d-flex align-items-center justify-content-center position-absolute pos-left pos-right pos-toppos-bottom">'.round($pct).'</span>';
+
+        $pie_chart_html .= '</div>';
+
+        return $pie_chart_html;
+    } 
 }

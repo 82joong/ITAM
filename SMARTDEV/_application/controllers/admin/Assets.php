@@ -1295,6 +1295,7 @@ class Assets extends Base_admin {
         ));
         $this->load->business(array(
             'location_tb_business',
+            'ip_class_tb_business',
         ));
 
         $req = $this->input->post();
@@ -1307,6 +1308,7 @@ class Assets extends Base_admin {
         $count = $this->ip_class_tb_model->getCount($params)->getData();
         $rows = $this->ip_class_tb_model->getList($params, $extras)->getData();
 
+
         // 통합검색모드
         if(isset($req['is_search']) && $req['is_search'] == 'YES') {
         
@@ -1317,6 +1319,15 @@ class Assets extends Base_admin {
                 $data['ipc_id'] = $ipc_data['ipc_id'];
                 $data['ipc_type'] = $ipc_data['ipc_type'];
                 $data['ipc_category'] = $ipc_data['ipc_category'];
+
+
+		// PIE CHART
+		$params = array();
+		$params['=']['ip_class_id'] = $data['ipc_id'];
+		$used_cnt = $this->ip_tb_model->getCount($params)->getData();
+		$data['pie_chart'] = $this->ip_class_tb_business->genIPUsedPie($ipc_data, $used_cnt, $title=$ipc_data['ipc_cidr']);
+
+
             }else {
                 $data['ipc_id'] = $rows[0]['ipc_id'];
                 $data['ipc_type'] = $rows[0]['ipc_type'];

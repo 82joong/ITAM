@@ -909,9 +909,14 @@ class System extends Base_admin {
 
         $data = array();
 
-		$this->load->model('ip_class_tb_model');
+	$this->load->model(array(
+		'ip_tb_model',
+		'ip_class_tb_model'
+	));
+		$this->load->library('CIDR');
         $this->load->business(array(
             'location_tb_business',
+            'ip_class_tb_business',
         ));
 
         $req = $this->input->post();
@@ -935,10 +940,25 @@ class System extends Base_admin {
             $count = $this->ip_class_tb_model->getCount($params)->getData();
             $rows = $this->ip_class_tb_model->getList($params, $extras)->getData();
 
+	    // ip_class 별 ip 점유상태
+	    $params = array();
+	    $params['>=']['ip_class_id'] = 1;
+	    $extras = array();
+	    $extras['fields'] = array("ip_class_id", "COUNT(ip_id) AS cnt");
+	    $extras['group_by'] = array("ip_class_id");
+	    $extras['order_by'] = array("ip_class_id ASC");
+
+            $class_data = $this->ip_tb_model->getList($params, $extras)->getData();
+            $class_data = $this->common->getDataByPK($class_data, 'ip_class_id');
+
             $data = array();
             foreach($rows as $k=>$r){
 
-                $link = '/'.SHOP_INFO_ADMIN_DIR.'/system/iplist/'.$r['ipc_id'];
+	    	//echo print_r($r);
+	    	$used_cnt = isset($class_data[$r['ipc_id']]) ? $class_data[$r['ipc_id']]['cnt'] : 0;
+                $r['pie_chart'] = $this->ip_class_tb_business->genIPUsedPie($r, $used_cnt, $title='USED/TOTAL', 'list');
+
+                $link = '/'.SHOP_INFO_ADMIN_DIR.'/assets/ip_total/'.$r['ipc_id'];
                 $icon = '<i class="fal fa-link mr-1"></i>';
                 //$r['ipc_cidr'] = '<span class="badge border border-danger text-danger">'.$r['ipc_cidr'].'</span>';
                 $r['ipc_cidr'] = '<a href="'.$link.'" class="btn btn-xs btn-danger waves-effect waves-themed">'.$icon.$r['ipc_cidr'].'</a>';
