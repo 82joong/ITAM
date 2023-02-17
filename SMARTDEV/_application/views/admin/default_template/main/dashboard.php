@@ -24,6 +24,7 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
 </style>
 
 
+
 <main id="js-page-content" role="main" class="page-content">
 
 
@@ -70,6 +71,38 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
 
 
 
+
+    <div class="row">
+
+<?php 
+foreach($model_assets as $m_id=>$rows) { 
+	$name = $assets_map[$m_id]['at_name'];
+	$icon = $assets_map[$m_id]['at_icon'];
+?>
+        <div class="col-xl-4 col-md-6 col-sm-12 col-xs-12">
+	    <div id="panel-4" class="panel">
+                <div class="panel-hdr">
+                    <h2 class="font-weight-bold">
+		    	<i class="fal <?=$icon?> mr-2"></i>
+			<?=$name?> 모델별 수량 현황	
+                    </h2>
+                </div>
+                <div class="panel-container show">
+                    <div class="panel-content">
+                        <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center">
+				<canvas id="bar_chart_<?=strtolower($name)?>" ></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+	</div>
+<?php
+}
+?>
+
+    </div>
+
+
     <div class="row">
 
         <div class="col-xl-12">
@@ -77,7 +110,7 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
                 <div class="panel-hdr">
                     <h2 class="font-weight-bold">
                         <i class="fal fa-chart-bar mr-2"></i>
-                        자산 유형별 최근 <?=$previous_date?>일간 배치(등록)된 자원의 수 
+                        자산 유형별 최근 <?=$previous_month?> 개월 간 등록된 자원의 수 
                     </h2>
                 </div>
                 <div class="panel-container show">
@@ -93,7 +126,7 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
         </div>
 
 
-        <div class="col-6">
+        <div class="col-12">
             <div id="panel-4" class="panel">
                 <div class="panel-hdr">
                     <h2 class="font-weight-bold">
@@ -149,25 +182,89 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
 
 
 
-        <div class="col-6">
+	<div class="col-6">
             <div id="panel-4" class="panel">
                 <div class="panel-hdr">
                     <h2 class="font-weight-bold">
-                        <i class="fal fa-chart-pie mr-2"></i>
+                        <i class="fal fa-chart-bar mr-2"></i>
                         자산 상태별 현황 
                     </h2>
                 </div>
                 <div class="panel-container show">
                     <div class="panel-content">
-                        <div id="pie_chart" class="col-12">
-                            <canvas height="120"></canvas>
+                        <canvas id="status_bar" class="col-12" style="height:200px;"></canvas>
+                    </div>
+                </div>
+            </div> 
+	</div>
+
+
+    </div> <!-- END .row -->
+
+
+
+
+    <div class="row">
+        <?php foreach($company_assets as $c_id=>$ca) : ?>
+	<?php if($ca['c_count'] < 1) { continue; } ?>
+        <div class="col-sm-4 col-xl-2">
+            <div class="p-2 rounded position-relative text-danger mb-g shadow border border-danger" style="background-color:#fff;">
+                <div class="">
+                    <h4 class="display-4 d-block l-h-n m-0 fw-500">
+                        <?=number_format($ca['c_count'])?>
+                        <small class="m-0 l-h-n"><?=$ca['c_name']?></small>
+                    </h4>
+                </div>
+		<img src="<?=$ca['c_img_path']?>" class="position-absolute pos-right pos-top opacity-50 mt-2 mr-2" style="width:60%;height:auto;">
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div id="panel-4" class="panel">
+                <div class="panel-hdr">
+                    <h2 class="font-weight-bold">
+                        <i class="fal fa-chart-line mr-2"></i>
+                       	누적 인력 현황 
+                    </h2>
+                </div>
+                <div class="panel-container show">
+                    <div class="panel-content">
+                        <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center">
+                            <canvas id="people_total_chart" class="col-12" style="height:130px;"></canvas>
                         </div>
                     </div>
                 </div>
             </div> 
         </div>
+    </div>
 
-    </div> <!-- END .row -->
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div id="panel-4" class="panel">
+                <div class="panel-hdr">
+                    <h2 class="font-weight-bold">
+                        <i class="fal fa-chart-bar mr-2"></i>
+                        최근 입퇴사자 현황 
+                    </h2>
+                </div>
+                <div class="panel-container show">
+                    <div class="panel-content">
+                        <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center">
+                            <canvas id="people_stacked" class="col-12" style="height:180px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+
+
 
 </main>
 
@@ -175,6 +272,7 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
 
 
 <script src="/admin_assets/js/statistics/chartjs/chartjs.bundle.js"></script>
+
 <script>
 
 
@@ -226,39 +324,202 @@ var barStacked = function()
 /* bar stacked -- end */
 
 
-/* pie chart */
-var pieChart = function()
+
+
+/* Status Bar */
+
+var statusBar = function()
 {
     var config = {
-        type: 'pie',
+        type: 'bar',
         data: {
             datasets: [{
-                data: [<?=implode(', ', $pie_data['datasets'])?>],
-                backgroundColor: [
-                    <?php foreach($pie_data['colors'] as $v) : ?>
-                    '<?=$v?>',
-                    <?php endforeach; ?>
-                ],
-                label: 'My dataset' // for legend
+                data: [<?=implode(',', $pie_data['datasets'])?>],
+		backgroundColor: ['<?=implode("','", $pie_data['colors'])?>'],
+                label: '' 
             }],
-            labels: ['<?=implode('\', \'', $pie_data['labels'])?>'],
+            labels: ['<?=implode("','", $pie_data['labels'])?>'],
         },
         options: {
             responsive: true,
             legend: {
-                display: true,
-                position: 'bottom',
+                display: false,
             }
         }
     };
-    new Chart($("#pie_chart > canvas").get(0).getContext("2d"), config);
+    new Chart($("#status_bar").get(0).getContext("2d"), config);
 }
+/* Status Bar -- end */
+
+
+
+/* Bar chart */
+<?php 
+foreach($model_assets as $m_id=>$rows) { 
+
+	$bgcolor = $bar_data['colors'][$m_id]['background'];
+	$border = $bar_data['colors'][$m_id]['border'];
+
+	$name = $assets_map[$m_id]['at_name'];
+	$labels = implode("','", $rows['labels']);
+	$values = implode(",", $rows['data']);
+?>
+
+var barChart<?=$name?> = function()
+{
+    var config = {
+        type: 'bar',
+        data: {
+		labels: ['<?=$labels?>'],
+	      	datasets: [{
+			label: '',
+			data: [<?=$values?>],
+			borderWidth: 1,
+			backgroundColor: '<?=$bgcolor?>',
+			borderColor: '<?=$border?>',
+	      	}] 
+        },
+        options: {
+            responsive: true,
+	    legend: {
+		display: false
+	    },
+	    scales: {
+	    	yAxes : [{
+		    ticks: {
+			beginAtZero: true,
+			min: 0,	
+		    }	
+		}],
+		y: { beginAtZero: true }
+	    }
+        }
+    };
+    new Chart($("#bar_chart_<?=strtolower($name)?>").get(0).getContext("2d"), config);
+}
+<?php 
+}
+?>
 /* pie chart -- end */
+
+
+
+/* people stacked */
+var peopleStacked = function()
+{
+    var barStackedData = {
+        labels: ['<?=implode('\', \'', $people_data['labels'])?>'],
+        datasets: [
+        <?php foreach($people_data['datasets'] as $k=>$v) :?>
+            {
+                label: "<?=$k?>",
+                backgroundColor: "<?=$people_data['colors'][$k]['background']?>",
+                borderColor: "<?=$people_data['colors'][$k]['background']?>",
+                borderWidth: 1,
+                data: [<?=implode(', ', $v)?>]
+            },
+        <?php endforeach; ?>
+        ]
+    };
+    var config = {
+        type: 'bar',
+        data: barStackedData,
+        options: {
+            responsive: true,
+            legend:
+            {
+                display: true,
+                labels: {display: false}
+            },
+            scales: {
+                yAxes: [{
+                    stacked: true,
+                    gridLines: {display: true, color: "#f2f2f2"},
+                    ticks: {beginAtZero: true, fontSize: 11}
+                }],
+                xAxes: [{
+                    stacked: true,
+                    gridLines: {display: true, color: "#f2f2f2"},
+                    ticks: {beginAtZero: true, fontSize: 9}
+                }]
+            }
+        }
+    }
+    new Chart($("#people_stacked").get(0).getContext("2d"), config);
+}
+/* people stacked -- end */
+
+
+
+/* People Total chart */
+var peopleTotalChart = function()
+{
+    var config = {
+        type: 'line',
+        data:
+        {
+            labels: ['<?=implode('\', \'', $people_data['labels'])?>'],
+            datasets: [
+            {
+                label: "",
+		lineTension: 0,
+		backgroundColor: 'rgba(29,201,183, 0.2)',
+                borderColor: color.success._500,
+                pointBackgroundColor: color.success._700,
+                pointBorderColor: 'rgba(0, 0, 0, 0)',
+                pointBorderWidth: 1,
+                borderWidth: 1,
+                pointRadius: 3,
+                pointHoverRadius: 4,
+                data: ['<?=implode('\', \'', $people_data['daily_total'])?>'],
+                fill: true 
+            }]
+        },
+        options:
+        {
+            responsive: true,
+	    legend:{display: false, labels: {display: false}},
+            title:{display: false, text: 'Line Chart'},
+            tooltips:{mode: 'index', intersect: false,},
+            hover:{mode: 'nearest', intersect: true},
+            scales:
+            {
+                xAxes: [
+                {
+                    display: true,
+                    gridLines: {display: true,color: "#f2f2f2"},
+                    ticks: {beginAtZero: true,fontSize: 11}
+                }],
+                yAxes: [
+                {
+                    display: true,
+                    gridLines: {display: true, color: "#f2f2f2"},
+                    ticks: {suggestedMin: 800, stepValue:50, fontSize: 11}
+                }]
+            }
+        }
+    };
+    new Chart($("#people_total_chart").get(0).getContext("2d"), config);
+}
+/* People Total chart -- end */
+
 
 
 /* initialize all charts */
 $(document).ready(function() {
     barStacked();
-    pieChart();
+    peopleStacked();
+    peopleTotalChart();
+
+<?php 
+foreach($model_assets as $m_id=>$rows) { 
+	$name = $assets_map[$m_id]['at_name'];
+?>
+    barChart<?=$name?>();
+
+<?php
+}
+?>
+    statusBar();
 });
 </script>

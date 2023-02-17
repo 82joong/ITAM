@@ -35,7 +35,6 @@ tbody > tr > td:nth-child(6) {
             <div class="panel">
                 <div class="panel-hdr">
                     <h2>Table</h2>
-                   
                     <div class="panel-toolbar">
                         <a href="/<?=SHOP_INFO_ADMIN_DIR?>/system/ipclass_detail" class="btn btn-sm btn-success waves-effect waves-themed">
                             <span class="fas fa-plus-square mr-1"></span> Add New Row
@@ -60,24 +59,12 @@ tbody > tr > td:nth-child(6) {
                                     <th data-name="ipc_cidr" data-type="text" data-op="cn">CIDR</th>
                                     <th data-name="ipc_start" data-type="text" data-op="cn">Start</th>
                                     <th data-name="ipc_end" data-type="text" data-op="cn">End</th>
+                                    <th data-name="pie_chart" data-type="none">Used</th>
                                     <th data-name="ipc_memo" data-type="text" data-op="cn">Memo</th>
                                     <th style="width:48px;"></th>
                                 </tr>
                             </thead>
 
-
-                            <tfoot class="bg-warning-200">
-                                <tr>
-                                    <th>Location</th>
-                                    <th>Type</th>
-                                    <th>Name</th>
-                                    <th>CIDR</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>Memo</th>
-                                    <th>Controls</th>
-                                </tr>
-                            </tfoot>
                         </table>
      
                     </div>
@@ -93,7 +80,11 @@ tbody > tr > td:nth-child(6) {
 <script src="<?=$assets_dir?>/js/colfilter.datatable.js"></script>
 <script type="text/javascript">
 
+
+
+
 $(document).ready(function() {
+
 
     // Setup - add a text input to each footer cell
     $('#data-table thead tr').clone(true).appendTo('#data-table thead');
@@ -129,7 +120,14 @@ $(document).ready(function() {
             {"data": "ipc_cidr"},
             {"data": "ipc_start"},
             {"data": "ipc_end"},
-            {"data": "ipc_memo"},
+	    {
+		"data": "pie_chart",
+	    },
+	    {
+		"data": "ipc_memo",
+                "className": "fs-nano text-left",
+	    },
+	    
             {
                 "data": null,
                 "className": "text-center",
@@ -139,7 +137,6 @@ $(document).ready(function() {
         // Define columns class 
         "columnDefs": [
             { "className": "text-center fs-nano", "targets": "_all" },
-            { "className": "text-left fs-nano", "targets": 6 },
             {
                 responsivePriority: 1,
                 targets: -1,
@@ -162,7 +159,7 @@ $(document).ready(function() {
         ],
  
         "dom": dtDoms,
-        "buttons": dtButtons 
+	"buttons": dtButtons,
     });
 
     table.on( 'responsive-resize', function ( e, datatable, columns ) {
@@ -179,6 +176,19 @@ $(document).ready(function() {
             });
         }
         //console.log( count +' column(s) are hidden' );
+    });
+
+
+    table.on( 'draw.dt', function ( e, datatable, columns ) {
+	$('.js-easy-pie-chart').easyPieChart({
+	    barColor: '#fc077a',  //차트가 그려질 색
+	    trackColor: 'rgba(0,0,0,0.04)',  // 차트가 그려지는 트랙의 기본 배경색(chart1 의 회색부분)
+	    scaleColor: '#fc077a', // 차트 테두리에 그려지는 기준선
+	    scaleLength: 3, 
+	    lineCap: 'butt', // 차트 선의 모양 chart1 butt / chart2 round / chart3 square
+	    lineWidth: 6, // 차트 선의 두께
+	    size: 50, // 차트크기
+    	});   	
     });
 
 
@@ -214,5 +224,23 @@ $(document).ready(function() {
     });
 
 
+    /*
+    $('.chart1').easyPieChart({
+    	barColor: '#f16529',  //차트가 그려질 색
+	trackColor: '#ccc',  // 차트가 그려지는 트랙의 기본 배경색(chart1 의 회색부분)
+	scaleColor: '#fff', // 차트 테두리에 그려지는 기준선 (chart2	의 테두리 선)
+	lineCap: 'butt', // 차트 선의 모양 chart1 butt / chart2 round / chart3 square
+	lineWidth: 30, // 차트 선의 두께
+	size: 200, // 차트크기
+	animate: 1000, // 그려지는 시간 
+	onStart: $.noop,
+	onStop: $.noop
+	});
+     */
+     //$('.js-easy-pie-chart').data('easyPieChart');
+
+
+     //$('.js-easy-pie-chart').easyPieChart({});
 });
+
 </script>

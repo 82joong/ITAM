@@ -18,14 +18,13 @@ include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
 
 $title_symbol = 'fa-ethernet';
 
-
-
 $sel_class = array(
     'ipc_name'      => '',
     'ipc_type'      => '',
     'ipc_category'  => '',
 );
 
+$subheader_contents = isset($pie_chart) ? $pie_chart : '';
 ?>
 
 <style type="text/css">
@@ -48,7 +47,7 @@ $sel_class = array(
                     <h2>
                         Location<span class="fw-300"><i>and Class</i></span>
                     </h2>
-                    <div class="panel-toolbar">
+                    <div class="panel-toolbar ml-3">
                         <?=genFullButton();?>
                     </div>
                 </div>

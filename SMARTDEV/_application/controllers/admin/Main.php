@@ -79,6 +79,8 @@ class Main extends Base_admin {
             'models_tb_model',
             'category_tb_model',
             'location_tb_model',
+            'company_tb_model',
+            'people_tb_model',
         ));
         $this->load->business(array(
             'status_tb_business',
@@ -88,10 +90,7 @@ class Main extends Base_admin {
 
         $this->load->library('user_agent');
 
-        $previous_date = 30;
-        if( $this->agent->is_mobile() ) {
-            $previous_date = 10;
-        }
+
 
 
         $data = array();
@@ -100,37 +99,228 @@ class Main extends Base_admin {
         $data['location_map'] = $this->location_tb_business->getNameMap();
         $data['assets_map'] = $this->_ASSETS_TYPE;
 
-        $data['previous_date'] = $previous_date; 
-        $data['bar_data'] = $this->_statCreatedAssets($previous_date); 
+	// 월별 자산 등록 현황
+        $previous_month = 24;
+        if( $this->agent->is_mobile() ) {
+            $previous_month = 12;
+        }
+        $data['previous_month'] = $previous_month; 
+        $data['bar_data'] = $this->_statCreatedAssets($previous_month); 
+	//echo print_r($data['bar_data']); exit;
+
+	// 상태별 현황
         $data['pie_data'] = $this->_statStatusAssets();
+
+	
+
         $data['tbl_data'] = $this->_statLocalAssets();
 
+	// 모델별 수량 현황
+	$data['model_assets'] = $this->_statModelAssets();
 
-		$this->_view('main/dashboard', $data);
+
+	// TODO. 단독/VM 현황
+	
+
+	// 회사별 자산 수량
+	$data['company_assets'] = $this->_statCompanyAssets();
+
+	// 날짜별 입사/퇴사 인원
+	$previous_day = 30;
+        if( $this->agent->is_mobile() ) {
+            $previous_day = 15;
+        }
+	$data['people_data'] = $this->_statInOuttPeople($previous_day);
+
+
+	$this->_view('main/dashboard', $data);
     }
 
 
+    private function _statInOuttPeople($previous_day) {
+    
+
+        $data = array();
+
+        $pre_date = strtotime('-'.$previous_day.' days');
+
+        $params = array();
+	if(IS_REAL_SERVER) {
+		$params['>=']['pp_created_at'] = date('Y-m-d', $pre_date);
+		$params['<=']['pp_created_at'] = date('Y-m-d');
+	}else {
+		$params['>=']['pp_created_at'] = '2022-11-15';
+		$params['<=']['pp_created_at'] = '2022-12-15';
+	}
+
+
+        $extras = array();
+        $extras['fields'] = array("DATE_FORMAT(pp_created_at, '%Y-%m-%d') AS date", "COUNT(pp_id) AS cnt");
+        $extras['group_by'] = array("DATE_FORMAT(pp_created_at, '%Y-%m-%d')");
+        $extras['order_by'] = array("DATE_FORMAT(pp_created_at, '%Y-%m-%d') ASC");
+
+        $in_data = $this->people_tb_model->getList($params, $extras)->getData();
+        $in_data = $this->common->getDataByPK($in_data, 'date');
+
+
+
+        $params = array();
+	if(IS_REAL_SERVER) {
+		$params['>=']['pp_outed_at'] = date('Y-m-d', $pre_date);
+		$params['<=']['pp_outed_at'] = date('Y-m-d');
+	}else {
+		$params['>=']['pp_outed_at'] = '2022-11-15';
+		$params['<=']['pp_outed_at'] = '2022-12-15';
+	}
+
+        $extras = array();
+        $extras['fields'] = array("DATE_FORMAT(pp_outed_at, '%Y-%m-%d') AS date", "COUNT(pp_id) AS cnt");
+        $extras['group_by'] = array("DATE_FORMAT(pp_outed_at, '%Y-%m-%d')");
+        $extras['order_by'] = array("DATE_FORMAT(pp_outed_at, '%Y-%m-%d') ASC");
+
+        $out_data = $this->people_tb_model->getList($params, $extras)->getData();
+	//echo $this->people_tb_model->getLastQuery(); exit;
+	$out_data = $this->common->getDataByPK($out_data, 'date');
+
+	/*
+	echo print_r($in_data);
+	echo print_r($out_data); exit;
+	*/
+
+
+	if(IS_REAL_SERVER) {
+		$begin_date = date('Y-m-d', $pre_date); 
+		$end_date = date('Y-m-d', time());
+	}else {
+		$begin_date = '2022-11-15'; 
+		$end_date = '2022-12-15';
+	}
+
+        $begin = new DateTime($begin_date);
+        $end   = new DateTime($end_date);
+        
+
+        $res = array(
+            'labels'    => array(),
+            'datasets'  => array(),
+            'colors'     => array()
+        );
+        for($i = $begin; $i <= $end; $i->modify('+1 day')){
+            $date = $i->format("Y-m-d");
+            //echo $date.'<br />'.PHP_EOL; exit;
+	    
+	    // 날짜별 인원 수
+	    $params = array();
+	    $params['raw'] = array("pp_created_at <= '".$date."'  AND (pp_outed_at > '".$date."' OR pp_outed_at = '0000-00-00 00:00:00')");
+	    $res['daily_total'][] = $this->people_tb_model->getCount($params)->getData();
+
+
+            $res['labels'][] = $i->format("m-d");
+
+            $res['datasets']['in'][] = isset($in_data[$date]) ? $in_data[$date]['cnt'] : 0;
+            $res['colors']['in'] = array(
+                    'background'    => 'rgba(81,173,246,.4)', 
+                    'border'        => 'rgba(33,150,243,1)' 
+            );
+
+            $res['datasets']['out'][] = isset($out_data[$date]) ? $out_data[$date]['cnt'] : 0;
+	    $res['colors']['out'] = array(
+                    'background'    => 'rgba(254,107,176,.4)', 
+                    'border'        => 'rgba(253,57,149,1)' 
+            );
+        }
+        //echo print_r($res); exit;
+        return $res;
+    }
+
+
+    // 회사별 자산 수량
+    private function _statCompanyAssets() {
+
+	    $params = array();
+	    $params['>=']['am_company_id'] = 1;
+	    $extras = array();
+	    $extras['fields'] = array("am_company_id", "COUNT(*) as cnt");
+	    $extras['group_by'] = array("am_company_id");
+	    $extras['order_by'] = array("am_company_id ASC");
+
+	    $data = $this->assets_model_tb_model->getList($params, $extras)->getData();
+	    $data = $this->common->getDataByPK($data, 'am_company_id');
+
+	    $params = array();
+	    $params['=']['c_is_active'] = 'YES';
+	    $extras = array();
+	    $extras['fields'] = array('c_id', 'c_name', 'c_filename');
+	    $extras['order_by'] = array('c_id ASC');
+	    $company_data = $this->company_tb_model->getList($params, $extras)->getData();
+	    //echo print_r($company_data); exit;
+
+	    $res = array();
+	    foreach($company_data as $r) {
+
+		    $res[$r['c_id']] = array(
+		    	'c_id'	=> $r['c_id'],
+		    	'c_name'	=> $r['c_name'],
+			'c_img_path'	=> '',
+			'c_count'	=> 0,
+		    );
+
+		    if(strlen($r['c_filename']) > 0) {
+                    	$img_path = $this->common->getImgUrl('company', $r['c_id']);
+                    	$res[$r['c_id']]['c_img_path'] = $img_path.'/'.$r['c_filename']; 
+		    }
+
+		    if(isset($data[$r['c_id']])) {
+		    	$res[$r['c_id']]['c_count'] = $data[$r['c_id']]['cnt'];
+		    }
+	    }
+	    return $res;
+    }
+
+    private function _statModelAssets() {
+
+	$url = ADMIN_DOMAIN.'/api/dashboard/models'; 
+	$stats_models = $this->common->restful_curl($url, $param=array(), $method='POST');
+	$stats_models = json_decode($stats_models, true);
+	//echo print_r($stats_models); exit;
+    
+
+	$dataset = array();
+	foreach($stats_models as $m_id => $rows) {
+		$data = array();
+		foreach($rows as $r) {
+			$data['labels'][] = $r['am_models_name'];
+			$data['data'][] = $r['cnt'];
+		}
+		$dataset[$m_id] = $data;
+	}
+	//echo print_r($dataset); //exit;
+	return $dataset;
+    }
+
 
     // 최근 장비 등록 현황
-    private function _statCreatedAssets($previous_date) {
+    private function _statCreatedAssets($previous_month) {
 
         $data = array();
 
         $params = array();
-        $pre_date = strtotime('-'.$previous_date.' days');
-        $params['>=']['am_created_at'] = date('Y-m-d 00:00:00', $pre_date);
-        $params['<=']['am_created_at'] = date('Y-m-d 23:59:59');
+        $pre_month = strtotime('-'.$previous_month.' months');
+
+        $params['>=']['am_created_at'] = date('Y-m', $pre_month);
+        $params['<=']['am_created_at'] = date('Y-m');
 
         $extras = array();
-        $extras['fields'] = array("DATE_FORMAT(am_created_at, '%Y-%m-%d') AS date", "am_assets_type_id", "COUNT(am_id) AS cnt");
-        $extras['group_by'] = array("DATE_FORMAT(am_created_at, '%Y-%m-%d')", "am_assets_type_id");
-        $extras['order_by'] = array("DATE_FORMAT(am_created_at, '%Y-%m-%d') ASC", "am_assets_type_id ASC");
+        $extras['fields'] = array("DATE_FORMAT(am_created_at, '%Y-%m') AS date", "am_assets_type_id", "COUNT(am_id) AS cnt");
+        $extras['group_by'] = array("DATE_FORMAT(am_created_at, '%Y-%m')", "am_assets_type_id");
+        $extras['order_by'] = array("DATE_FORMAT(am_created_at, '%Y-%m') ASC", "am_assets_type_id ASC");
 
         $data = $this->assets_model_tb_model->getList($params, $extras)->getData();
+	//echo $this->assets_model_tb_model->getLastQuery(); exit;
         $data = $this->common->getDataByDuplPK($data, 'date');
 
-        $begin_date = date('Y-m-d', $pre_date); 
-        $end_date = date('Y-m-d', time());
+        $begin_date = date('Y-m', $pre_month); 
+        $end_date = date('Y-m', time());
         /*
         echo 'Begin : '.$begin_date.'<br />'.PHP_EOL;
         echo 'End : '.$end_date.'<br />'.PHP_EOL;
@@ -144,9 +334,9 @@ class Main extends Base_admin {
             'datasets'  => array(),
             'colors'     => array()
         );
-        for($i = $begin; $i <= $end; $i->modify('+1 day')){
-            $date = $i->format("Y-m-d");
-            //echo $date.'<br />'.PHP_EOL;
+        for($i = $begin; $i <= $end; $i->modify('+1 month')){
+            $date = $i->format("Y-m");
+            //echo $date.'<br />'.PHP_EOL; exit;
 
             $res['labels'][] = $date;
 
