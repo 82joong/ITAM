@@ -44,6 +44,7 @@ class Models_custom_fields_tb_business extends MY_Model
         $cf_data = $this->custom_field_tb_model->getList($params)->getData();
         $cf_data = $this->common->getDataByPK($cf_data, 'cf_id');
 
+	$res = array();
         foreach($req['fields'] as $cf_id=>$cf) {
 
             if( ! isset($cf_data[$cf_id]) ) {

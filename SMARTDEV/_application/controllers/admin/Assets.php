@@ -2249,6 +2249,7 @@ class Assets extends Base_admin {
         // 삭제 & 업데이트 시 기존데이터 검증
         $row_data = array();
         if($req['mode'] == 'update' || $req['mode'] == 'delete') {
+	
             if( ! $this->vmservice_tb_model->get($req['vms_id'])->isSuccess()) {
                 $log_array['msg'] = getAlertMsg('INVALID_SUBMIT');
                 if($req['msg'] == 'ajax') {
@@ -2355,7 +2356,7 @@ class Assets extends Base_admin {
                 if( ! isset($data_params['vms_name'])) {
                     $log_array['msg'] = getAlertMsg('REQUIRED_VALUES'); 
 
-                    if($req['request'] == 'ajax') {
+                    if(isset($req['request']) && $req['request'] == 'ajax') {
                         $ajax_res['msg'] = $log_array['msg'];
                         echo json_encode($ajax_res);
                     }else {
@@ -2363,17 +2364,16 @@ class Assets extends Base_admin {
                         $this->common->locationhref($rtn_url);
                     }
                     return;
-                }
+		}
 			
                 $data_params['vms_created_at'] = date('Y-m-d H:i:s');
                 unset($data_params['vms_id']);
 
                 $log_array['params'] = $data_params;
-                //echo print_r($data_params); exit;
                 if( ! $this->vmservice_tb_model->doInsert($data_params)->isSuccess()) {
                     $log_array['msg'] = $this->vmservice_tb_model->getErrorMsg();
 
-                    if($req['request'] == 'ajax') {
+                    if(isset($req['request']) && $req['request'] == 'ajax') {
                         $ajax_res['msg'] = $log_array['msg'];
                         echo json_encode($ajax_res);
                     }else {
@@ -2394,6 +2394,7 @@ class Assets extends Base_admin {
                 $in_params['ip_memo']               = $req['vms_memo'];
                 $in_params['ip_created_at']         = date('Y-m-d H:i:s');
                 $in_params['ip_updated_at']         = date('Y-m-d H:i:s');
+		//echo print_r($in_params); exit;
                 $ip_id = $this->ip_tb_model->doInsert($in_params)->getData();
                 $log_array['params'] = array_merge($log_array['params'], $in_params);
 
@@ -2410,7 +2411,7 @@ class Assets extends Base_admin {
         }
 
 
-        if($req['request'] == 'ajax') {
+        if(isset($req['request']) && $req['request'] == 'ajax') {
             $ajax_res['is_success'] = true;
             echo json_encode($ajax_res);
         }else {
@@ -2460,7 +2461,11 @@ class Assets extends Base_admin {
         foreach($fields as $f) {
             $row[$f] = ''; 
         }
-
+	$fields = $this->ip_tb_model->getFields();
+        foreach($fields as $f) {
+            $row[$f] = ''; 
+        }
+	//echo print_r($row); //exit;
 
         if( $req['mode'] == 'update' ) {
             $params = array();
@@ -2481,7 +2486,7 @@ class Assets extends Base_admin {
         $assign_data['sel_services'] = $sel_services;
         $assign_data['am_data'] = $this->assets_model_tb_model->get($req['am_id'])->getData();
         $assign_data['row'] = $row;
-
+	//echo print_r($row); exit;
 
         $json_data['is_success'] = TRUE;
         $json_data['msg'] = $this->load->view('admin/default_template/assets/alias_template.php', $assign_data, true);
@@ -2534,8 +2539,23 @@ class Assets extends Base_admin {
                 $row[$f] = ''; 
             }
         }
+	
+	$fields = $this->ip_tb_model->getFields();
+        foreach($fields as $f) {
+       		$row[$f] = ''; 
+        }
+
 
         $sm_data = array();
+	$fields = $this->service_manage_tb_model->getFields();
+        foreach($fields as $f) {
+		if($f == 'sm_secure_conf' || $f == 'sm_secure_inte' || $f == 'sm_secure_avail') {
+       			$sm_data[$f] = 1; 
+		}else {
+       			$sm_data[$f] = ''; 
+		}
+        }
+
         if( $req['mode'] == 'update' ) {
             $params = array();
             $params['=']['vms_id'] = $req['vms_id'];
@@ -2563,9 +2583,6 @@ class Assets extends Base_admin {
         $assign_data['am_data'] = $this->assets_model_tb_model->get($req['am_id'])->getData();
         $assign_data['row'] = $row;
 
-        if( ! isset($sm_data['sm_secure_conf']) ) $sm_data['sm_secure_conf'] = 1;
-        if( ! isset($sm_data['sm_secure_inte']) ) $sm_data['sm_secure_inte'] = 1;
-        if( ! isset($sm_data['sm_secure_avail']) ) $sm_data['sm_secure_avail'] = 1;
 
         $assign_data['sm_data'] = $sm_data;
         $assign_data['status_type'] = $this->vmservice_tb_model->getStatusText();

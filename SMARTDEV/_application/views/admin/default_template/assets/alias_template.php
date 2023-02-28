@@ -78,12 +78,13 @@
                             </div>
 
 
+
                             <div class="form-group col-12 mb-3">
                                 <label class="form-label" for="vms_name">
                                     (Alias) Name 
                                     <span class="text-danger">*</span>
                                 </label>
-                                <?=getInputMask('normal', 'vms_name', $vim_data['vms_name'], 'required')?>
+                                <?=getInputMask('normal', 'vms_name', $row['vms_name'], 'required')?>
                             </div>
 
 
@@ -91,10 +92,9 @@
                                 <label class="form-label" for="vms_memo" data-i18n="content.memo">
                                     Memo 
                                 </label>
-                                <?=getTextArea($name='vms_memo', $vim_data['vms_memo'])?>
+                                <?=getTextArea($name='vms_memo', $row['vms_memo'])?>
                                 <span class="help-block">자산에 대한 역할 및 기능에 대한 상세 서술</span>
                             </div>
-
 
                             <?php if( ! isset($from) || $from != 'iptotal' ) : ?>
                             <div class="form-group col-12 mb-1">

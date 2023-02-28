@@ -340,7 +340,7 @@ $(document).ready(function() {
         onEditRow: function(dt, rowdata, success, error) {
             rowdata.mode = 'update';
             rowdata.request= 'ajax';
-            rowdata.o_id = '<?=$row['o_id']?>';
+            rowdata.o_id = '<?=$row['fs_id']?>';
             $.post('/<?=SHOP_INFO_ADMIN_DIR?>/manage/custom_field_map_process', rowdata, function(res) {
                 if(res.is_success) {
                     //table.clear().draw();

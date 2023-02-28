@@ -857,7 +857,7 @@ class Manage extends Base_admin {
                 $this->common->write_history_log($sess, 'INSERT', $act_key, $log_array, 'models_tb');
                 break;
         }
-
+	
         $this->common->locationhref($rtn_url);
     }
 
@@ -2884,7 +2884,7 @@ class Manage extends Base_admin {
         $extras = array();
         $extras['fields'] = array(
             'cfm_id', 'cfm_fieldset_id', 'cfm_order', 'cfm_required',
-            'cf_id', 'cf_name', 'cf_format', 'cf_format_element', 'cf_help_text', 'cf_element_value', 'cf_encrypt'
+            'cf_id', 'cf_name', 'cf_format', 'cf_format_element', 'cf_help_text', 'cf_element_value as cf_value', 'cf_encrypt', 'cf_required'
         );
         $extras['order_by'] = array('cfm_order ASC');
         $cf_data = $this->custom_field_map_tb_model->getList($params, $extras)->getData();
