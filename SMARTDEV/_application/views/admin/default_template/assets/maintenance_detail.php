@@ -17,8 +17,8 @@ $title_symbol = 'fa-tools';
 
 
 
-<link rel="stylesheet" media="screen, print" href="<?=$assets_dir?>/css/formplugins/bootstrap-colorpicker/bootstrap-colorpicker.css">
-<link rel="stylesheet" media="screen, print" href="<?=$assets_dir?>/css/formplugins/dropzone/dropzone.css">
+<link rel="stylesheet" media="screen, print" href="/admin_assets/css/formplugins/bootstrap-colorpicker/bootstrap-colorpicker.css">
+<link rel="stylesheet" media="screen, print" href="/admin_assets/css/formplugins/dropzone/dropzone.css">
 
 
 
@@ -245,7 +245,7 @@ $title_symbol = 'fa-tools';
 </form>
 
 
-<script src="<?=$assets_dir?>/js/custom.summernote.js?<?=filemtime(FCPATH.'admin_assets/js/custom.summernote.js')?>"></script>
+<script src="/admin_assets/js/custom.summernote.js?<?=filemtime(FCPATH.'admin_assets/js/custom.summernote.js')?>"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 

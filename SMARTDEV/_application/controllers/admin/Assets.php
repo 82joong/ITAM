@@ -1100,7 +1100,7 @@ class Assets extends Base_admin {
 
         if($id > 0) {
 
-            if(strlen($mode) < 1) {
+            if(isset($mode) && strlen($mode) < 1) {
                 $mode = 'update';
             }else {
                 // clone => insert 로 
