@@ -481,7 +481,7 @@ class Main extends Base_admin {
         }
 
 
-        $msg = '아미디 쪼는 비밀번호가 일치 하지 않습니다.\r\n재시도 또는 담당자 문의 부탁드립니다.';
+        $msg = '아이디 또는 비밀번호가 일치 하지 않습니다.\r\n재시도 또는 담당자 문의 부탁드립니다.';
 
         // 사용자 존재 여부 
         if($this->admin_tb_model->isSuccess() === FALSE){
