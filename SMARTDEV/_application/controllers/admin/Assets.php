@@ -2539,22 +2539,22 @@ class Assets extends Base_admin {
                 $row[$f] = ''; 
             }
         }
-	
-	$fields = $this->ip_tb_model->getFields();
-        foreach($fields as $f) {
-       		$row[$f] = ''; 
-        }
 
-
-        $sm_data = array();
-	$fields = $this->service_manage_tb_model->getFields();
-        foreach($fields as $f) {
-		if($f == 'sm_secure_conf' || $f == 'sm_secure_inte' || $f == 'sm_secure_avail') {
-       			$sm_data[$f] = 1; 
-		}else {
-       			$sm_data[$f] = ''; 
+		$fields = $this->ip_tb_model->getFields();
+		foreach($fields as $f) {
+			$row[$f] = ''; 
 		}
-        }
+
+
+		$sm_data = array();
+		$fields = $this->service_manage_tb_model->getFields();
+		foreach($fields as $f) {
+			if($f == 'sm_secure_conf' || $f == 'sm_secure_inte' || $f == 'sm_secure_avail') {
+				$sm_data[$f] = 1; 
+			}else {
+				$sm_data[$f] = ''; 
+			}
+		}
 
         if( $req['mode'] == 'update' ) {
             $params = array();
@@ -2571,9 +2571,13 @@ class Assets extends Base_admin {
             $params = array();
             $params['=']['sm_assets_model_id'] = $req['am_id'];
             $params['=']['sm_vmservice_id'] = $req['vms_id'];
-            $sm_data = $this->service_manage_tb_model->getList($params)->getData();
-            $sm_data = array_shift($sm_data);
-        }
+
+			$sm_cnt= $this->service_manage_tb_model->getCount($params)->getData();
+			if( $sm_cnt > 0 ) {
+				$sm_data = $this->service_manage_tb_model->getList($params)->getData();
+				$sm_data = array_shift($sm_data);
+			}
+		}
 
         $service_data = $this->vmservice_tb_business->get_service_for_alias($req['am_id']);
         $sel_services = getSearchSelect($service_data, 'vms_alias_id', $row['vms_alias_id'], 'required'); 
