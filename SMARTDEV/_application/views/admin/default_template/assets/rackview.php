@@ -215,6 +215,7 @@ $sel_class = array();
                                                                                         $link .= '<i class="fal fa-external-link-square ml-1"></i>';
                                                                                         $link .= '</a>';
 
+
                                                                                         $txt = $this->assets_type_tb_business->iconTypeName($type_data[$s['am_assets_type_id']]).' ';
                                                                                         $txt .= $this->status_tb_business->iconStatusName($status_data[$s['am_status_id']]['s_color_code'], $status_data[$s['am_status_id']]['s_name']);
                                                                                         $txt .= '&nbsp;'.$link;
@@ -230,16 +231,37 @@ $sel_class = array();
                                                                                         <li class="dd-item" data-id="<?=$s['am_id']?>">
                                                                                             <div class="dd-handle d-flex flex-row">
                                                                                                 <?//=$s['am_rack_order']?>
-                                                                                                <div class="flex-1 mt-1 "><?=$txt?></div>
-                                                                                                <div class="width-2">
+												<div class="flex-1 mt-1 "><?=$txt?></div>
+												<div class="width-2">
 
-                                                                                                    <span class="h-100 w-100 d-flex align-items-center justify-content-center text-dark">
+												    <span class="h-100 w-100 d-flex align-items-center justify-content-center text-dark">
                                                                                                         <i class="fal fa-ellipsis-v fs-lg btn-m-s mb-2"></i>
                                                                                                         <i class="fal fa-ellipsis-v fs-lg btn-m-s mb-2"></i>
-                                                                                                        <i class="fal fa-ellipsis-v fs-lg btn-m-s mb-2"></i>
+													<i class="fal fa-ellipsis-v fs-lg btn-m-s mb-2"></i>
                                                                                                     </span>
 
-                                                                                                </div>
+                                                						</div>
+
+                                                <?php
+                                                    $btn_detail_visible = TRUE;
+						    if($s['am_assets_type_id'] == 1) {
+							if( ! isset($popover_contents[$s['am_id']]) || strlen($popover_contents[$s['am_id']]['contents']) < 1) {
+                                                    		$btn_detail_visible = FALSE;
+							}
+						    }else {
+                                                	$btn_detail_visible = FALSE;
+						    }
+
+						?>
+						<?php if($btn_detail_visible == TRUE) : ?>
+
+<div>
+						<button type="button" id="detail" class="btn btn-xs btn-outline-danger waves-effect waves-themed" data-toggle="popover" data-trigger="hover" data-placement="right"  data-html="true" title="" data-content="<?=$popover_contents[$s['am_id']]['contents']?>" data-original-title="" data-template="<?=$popover_template?>">Detail
+							<span class="badge bg-danger-800 ml-2"><?=$popover_contents[$s['am_id']]['size']?></span>
+						</button>
+</div>
+
+						<?php endif; ?>
                                                                                             </div>
                                                                                         </li>
                                                                                     <?php 
@@ -311,7 +333,6 @@ $sel_class = array();
 $(document).ready(function() {
 
 
-
     <?php
     $rack_ids = array_keys($as_data);
     foreach($rack_ids as $id) :
@@ -337,6 +358,7 @@ $(document).ready(function() {
         return false;
     });
 
+    /*var list_num = $('#detail_table >tbody tr').length */
 
     function updateRackOrder(data) {
         var params = 'data=' + data;
@@ -349,6 +371,7 @@ $(document).ready(function() {
             }
         },'json');
     }
+
     
 });
 </script>

@@ -2603,15 +2603,22 @@ class Assets extends Base_admin {
             'assets_model_tb_model',
             'assets_type_tb_model',
             'location_tb_model',
-            'status_tb_model'
+	    'status_tb_model',
+	    'vmservice_tb_model',
+	    'vmservice_ip_map_tb_model',
+	    'service_manage_tb_model',
+	    'ip_tb_model',
+	    'direct_ip_map_tb_model',
+	    'assets_ip_map_tb_model',
         ));
 
         $this->load->business(array(
             'location_tb_business',
             'assets_type_tb_business',
-            'status_tb_business'
+	    'status_tb_business',
+	    'assets_model_tb_business',
+	    'company_tb_business',
         ));
-
 
 
         $id = $this->uri->segment(4);
@@ -2685,6 +2692,102 @@ class Assets extends Base_admin {
         $as_data = $this->common->getDataByDuplPK($as_data, 'r_id');
 
 
+	// VMSERVICE 
+	$params = array();
+	$params['=']['am_location_id'] = $rack_data['r_location_id'];
+	$params['<']['vms_alias_id'] = '1';	
+	$params['join']['vmservice_ip_map_tb'] = 'vim_vmservice_id = vms_id';
+	$params['join']['assets_model_tb'] = 'vms_assets_model_id = am_id';
+	$params['left_join']['service_manage_tb'] = 'vim_vmservice_id = sm_vmservice_id';
+	$params['join']['ip_tb'] = 'ip_id = vim_ip_id';
+	$extras = array();
+	$extras['fields'] = array('am_id', 'vms_assets_model_id', 'vms_name', 'ip_address as vms_ip_address', 'am_location_id');
+	#$extras['order_by'] = array('INET_ATON(ip_address) ASC');
+	$extras['order_by'] = array('vms_assets_model_id ASC');
+	$vm_rows = $this->vmservice_tb_model->getList($params, $extras)->getData();
+	#echo print_r($vm_rows); exit;
+	$vm_rows = $this->common->getDataByDuplPK($vm_rows, 'am_id');
+	#echo print_r($vm_rows); exit;
+
+	//Direct
+	$params = array();
+	$params['=']['am_location_id'] = $rack_data['r_location_id'];
+	$params['join']['assets_model_tb'] = 'dim_assets_model_id = am_id';
+	$params['join']['ip_tb'] = 'dim_ip_id = ip_id';
+	$params['left_join']['assets_ip_map_tb'] = 'dim_assets_model_id = aim_assets_model_id';
+	$params['left_join']['service_manage_tb'] = 'dim_assets_model_id = sm_assets_model_id';
+	$extras = array();
+	$extras['fields'] = array('am_id','dim_assets_model_id', 'service_manage_tb.sm_usage', 'ip_address as dim_ip_id', 'am_location_id');
+	$extras['order_by'] = array('am_id DESC');
+	$dr_rows = $this->direct_ip_map_tb_model->getList($params, $extras)->getData();
+	#echo print_r($dr_rows); exit;
+	$dr_rows = $this->common->getDataByPK($dr_rows, 'dim_assets_model_id');
+	#echo print_r($dr_rows); exit;
+
+	// Detail Button Hover template
+	$popover_template = "<div class='popover bg-light border-light' role='tooltip'>";
+	$popover_template .= "<div class='arrow'></div><h3 class='popover-header bg-transparent'></h3>";
+	$popover_template .= "<div class='popover-body'></div>";
+	$popover_template .= "</div>";
+	$data['popover_template'] = $popover_template;
+
+	$content_data = array();
+	#echo print_r($vm_rows); exit;
+	//VMService일때
+	foreach($vm_rows as $am_id=>$vms) {
+		$th1 = 'VMService IP'; 
+		$th2 = 'VMService Name';
+		$content_header = "<table id='detail_table' style='font-size: 11px' class='table table-sm table-bordered m-0'>";
+		$content_header .= "    <thead style='text-align:center' class='bg-danger-500'>";
+		$content_header .= "        <tr>";
+		$content_header .= "            <th>".$th1."</th>";
+		$content_header .= "            <th>".$th2."</th>";
+		$content_header .= "       </tr>";
+		$content_header .= "   </thead>";
+		$content_body = $content_header;
+		$content_body .= "<tbody id='tbody'>";
+		foreach($vms as $v) {
+			$content_body .= "<tr>";
+			$content_body .= "    <td>".$v['vms_ip_address']."</td>";
+			$content_body .= "    <td>".$v['vms_name']."</td>";
+			$content_body .= "</tr>";
+		}
+		$content_body .= "</tbody>";
+		$content_body .= "</table>";
+
+	
+		//contents
+		$content_data[$am_id]['contents'] = $content_body;
+
+		//size
+		$content_data[$am_id]['size'] = sizeof($vms);
+	}
+	//echo print_r($content_data); exit;
+
+	//Direct Service일 때
+	foreach($dr_rows as $dim_assets_model_id=>$drs) {
+		$content = "<table id='detail_table' style='font-size: 11px'  class='table table-sm table-bordered m-0'>";
+		$content .= "	<thead style='text-align:center' class='bg-danger-500'>";
+		$content .= "		<tr>";
+		$content .= "			<th>Direct IP</th>";
+		$content .= "			<th>사용용도</th>";
+		$content .= "		</tr>";
+		$content .= "	</thead>";
+		$content .= "	<tbody id='tbody'>";
+		$content .= "<tr>";
+		$content .= "	<td>".$drs['dim_ip_id']."</td>";
+		$content .= "	<td>".$drs['sm_usage']."</td>";
+		$content .= "</tr>";
+		$content .= "</tbody>";
+		$content .= "</table>";
+
+		$content_data[$dim_assets_model_id]['contents'] = $content;
+		$content_data[$dim_assets_model_id]['size'] = 1;
+	}
+
+	//echo print_r($content_data); exit;
+    	$data['popover_contents'] = $content_data;
+	//echo print_r($data); exit;
 
         $data['rack_data'] = $rack_data;
         $data['tt_rows'] = $tt_rows;
@@ -2693,8 +2796,10 @@ class Assets extends Base_admin {
         $data['location_map'] = $location_map;
         $data['type_data'] = $type_data;
         $data['status_data'] = $status_data;
+	$data['vm_rows'] = $vm_rows;
 
-		$this->_view('assets/rackview', $data);
+
+	$this->_view('assets/rackview', $data);
     }
 
 
