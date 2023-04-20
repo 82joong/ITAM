@@ -148,13 +148,16 @@ define('HTTPS_DASHBOARD_URL', 'https://syslog-api.makeshop.co.kr');
 
 // REAL SERVER
 if(APPPATH == '/usr/home/httpd/html/SMARTDEV/_application/') {
+//if(APPPATH == '/home/team/korea/html/itam/SMARTDEV/_application/') {
 
-    define('LOG_FILE_PATH', '/usr/home/httpd/html/SMARTDEV/appdata/logdata');
-    define('SYNC_FILE_PATH', '/usr/home/httpd/html/SMARTDEV/appdata/sync_data');
+    define('LOG_FILE_PATH', '/home/team/korea/html/itam/SMARTDEV/appdata/logdata');
+    define('SYNC_FILE_PATH', '/home/team/korea/html/itam/SMARTDEV/appdata/sync_data');
 
     define('IS_REAL_SERVER', true);
-    define('ADMIN_DOMAIN', 'lab.makeshop.co.kr');
-    define('HTTPS_SHOP_URL', 'https://lab.makeshop.co.kr');
+    //define('ADMIN_DOMAIN', 'lab.makeshop.co.kr');
+    //define('HTTPS_SHOP_URL', 'https://lab.makeshop.co.kr');
+    define('ADMIN_DOMAIN', 'itam.joong.co.kr');
+    define('HTTPS_SHOP_URL', 'https://itam.joong.co.kr');
 
     // OTP
     define('USE_OTP', TRUE);
@@ -170,14 +173,16 @@ if(APPPATH == '/usr/home/httpd/html/SMARTDEV/_application/') {
 } else {
 
     define('IS_REAL_SERVER', false);
-    define('ADMIN_DOMAIN', 'itam.82joong.joong.co.kr');
+    define('ADMIN_DOMAIN', 'itam.joong.co.kr');
 
     // OTP
     define('USE_OTP', FALSE);
 
-    define('LOG_FILE_PATH', '/home/team/82joong/html/itam/SMARTDEV/appdata/logdata');
-    define('SYNC_FILE_PATH', '/home/team/82joong/html/itam/SMARTDEV/appdata/sync_data');
+    //define('LOG_FILE_PATH', '/home/team/82joong/html/itam/SMARTDEV/appdata/logdata');
+    //define('SYNC_FILE_PATH', '/home/team/82joong/html/itam/SMARTDEV/appdata/sync_data');
 
+    define('LOG_FILE_PATH', '/home/team/korea/html/itam/SMARTDEV/appdata/logdata');
+    define('SYNC_FILE_PATH', '/home/team/korea/html/itam/SMARTDEV/appdata/sync_data');
 
     define('ELASTIC_HOST', 'http://itam.82joong.joong.co.kr:9200');
     define('ELASTIC_VERSION', '7.13');

@@ -99,6 +99,7 @@ $sel_class = array();
                                                 <div class="h5"><?=$floor?></div>
                                                 <?php 
                                                 $section_data = $this->common->getDataByPK($fdata, 'r_section');
+echo print_r($section_data); exit;
                                                 foreach($section_data as $section=>$sdata){
 
                                                     //echo print_r($sdata); exit;

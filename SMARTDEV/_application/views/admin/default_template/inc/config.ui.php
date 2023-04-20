@@ -168,6 +168,7 @@ $page_nav = array(
     ),
 
 
+	/*
     'syslog' => array(
         'level'	=> '7',
 		'title' => 'SYSLOG',
@@ -266,6 +267,7 @@ $page_nav = array(
         )
     ),
 
+	 */
  
 
 	'manage' => array(
@@ -320,10 +322,12 @@ $page_nav = array(
 				'title' => 'IPs Class',
 				'url' => '/'.$admindir.'/system/ipclass',
 			),
+	    /*
             'hostmap' => array(
 				'title' => 'Host Mapping',
 				'url' => '/'.$admindir.'/system/hostmap',
 			),
+	     */
 			'setting' => array(
 				'title' => 'Setting',
 				'url' => '/'.$admindir.'/system/setting'
@@ -340,6 +344,7 @@ $page_nav = array(
 	), 
 
 
+    /*
 	'logs' => array(
 		'level'	=> '7',
 		'title' => 'Logs',
@@ -376,15 +381,14 @@ $page_nav = array(
 		'level'	=> '7',
 		'title' => 'Statics',
 		'icon' => 'fa-file-spreadsheet',
-        /*
 		'sub' => array(
             'company' => array(
 				'title' => 'Company',
 				'url' => '/'.$admindir.'/manage/company'
 			),
 		)
-        */
 	),
+    */
 
 
 );

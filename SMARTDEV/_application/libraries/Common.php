@@ -3222,13 +3222,8 @@ class Common {
             return $is_developer;
         }
 		$developer = array(
-            'phoenixq',
-            'bwwjh',
             '82joong',
-            'lsyoung',
-            'bigtuna',
-            'yun3019',
-            'maginc3',
+            'mj128',
         );
 
 		if(in_array($sess['login_id'], $developer)) {

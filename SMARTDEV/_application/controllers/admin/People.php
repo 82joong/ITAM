@@ -146,8 +146,9 @@ class People extends Base_admin {
         $company_data = $this->company_tb_business->getNameMap();
         $data['select_company'] = getSearchSelect($company_data, 'pp_company_id', $row['pp_company_id']);
 
-        $supplier_data = $this->supplier_tb_business->getOptionMap();
-        $data['select_supplier'] = getGroupSearchSelect($supplier_data, 'pp_supplier_id', $row['pp_supplier_id']); 
+        //$supplier_data = $this->supplier_tb_business->getOptionMap();
+        //$data['select_supplier'] = getGroupSearchSelect($supplier_data, 'pp_supplier_id', $row['pp_supplier_id']); 
+	    //echo print_r($data['select_supplier']); exit;
 
         $loginid_data = $this->admin_tb_business->getLoginIDMap();
         $data['select_loginid'] = getSearchSelect($loginid_data, 'pp_admin_id', $row['pp_admin_id']);
@@ -208,7 +209,27 @@ class People extends Base_admin {
 
         // 중복값 처리
         if($req['mode'] != 'delete') {
-            
+            $params = array();
+            $params['!=']['pp_id'] = $req['pp_id'];
+            $params['=']['pp_email'] = $req['pp_email'];
+            $emi_cnt = $this->people_tb_model->getCount($params)->getData();
+            if($emi_cnt > 0) {
+                $log_array['msg'] = getAlertMsg('DUPLICATE_VALUES').' [Email]';
+                $this->common->alert($log_array['msg']);
+                $this->common->historyback();
+                return;
+            }	
+
+            $params = array();
+            $params['!=']['pp_id'] = $req['pp_id'];
+            $params['=']['pp_login_id'] = $req['pp_login_id'];
+            $log_cnt = $this->people_tb_model->getCount($params)->getData();
+            if($log_cnt > 0) {
+                $log_array['msg'] = getAlertMsg('DUPLICATE_VALUES').' [Login ID]';
+                $this->common->alert($log_array['msg']);
+                $this->common->historyback();
+                return;
+            }
         }
 
 
@@ -217,40 +238,33 @@ class People extends Base_admin {
         switch($req['mode']) {
 
             case 'delete':
-                
-                /* TODO.
                 $data_params = array();
-                $data_params['m_is_active'] = 'NO';
-                $log_array['update_data'] = $data_params;
-
-                if( ! $this->people_tb_model->doUpdate($row_data['m_id'], $data_params)->isSuccess()) {
-                    $log_array['msg'] = $this->people_tb_model->getErrorMsg();
-                    $this->common->alert($log_array['msg']);
-                    $this->common->locationhref($rtn_url);
-                    $this->common->write_history_log($sess, $req['mode'].' - FAIL', $req['m_id'], $log_array, 'people_tb');
+                $log_array['params'] = $data_params;
+                if(! $this->people_tb_model->doDelete($req['pp_id'])->isSuccess()) {
+                    $log_array['msg'] = $this->people_t_model->getErrorMsg();
+                    if($req['request'] == 'ajax') {
+                        $ajax_res['msg'] = $log_array['msg'];
+                        echo json_encode($ajax_res);
+                    }else {
+                        $this->common->alert($log_array['msg']);
+                        $this->common->locationhref($rtn_url);
+                        $this->common->write_history_log($sess, $req['mode'].' - FAIL', $req['pp_id'], $log_array, 'people_tb');
+                    }
                     return;
                 }
-                $this->common->write_history_log($sess, 'EXPIRE', $req['m_id'], $log_array, 'people_tb');
-                $this->common->locationhref($rtn_url);
+                $this->common->write_history_log($sess, 'DELETE', $req['pp_id'], $log_array, 'people_tb');
+                if($req['request'] == 'ajax') {
+                    $ajax_res['is_success'] = true;
+                    echo json_encode($ajax_res);
+                }else {
+                    $this->common->locationhref($rtn_url);
+                }
                 return;
-                */
-
                 break;
 
             case 'update':
 
                 $rtn_url = '/'.SHOP_INFO_ADMIN_DIR.'/people/employee_detail/'.$req['pp_id'];
-
-                // UNIQUE KEY 
-                $params = array();
-                $params['!=']['pp_id'] = $req['pp_id'];
-                $params['=']['pp_email'] = $data_params['pp_email'];
-                $cnt = $this->people_tb_model->getCount($params)->getData();
-                if($cnt > 0) {
-                    $this->common->alert(getAlertMsg('DUPLICATE_VALUES').' [Email]');
-                    $this->common->historyback();
-                    return;
-                }
 
                 $log_array['params'] = $data_params;
                 if( ! $this->people_tb_model->doUpdate($req['pp_id'], $data_params)->isSuccess()) {
@@ -259,7 +273,7 @@ class People extends Base_admin {
                     $this->common->locationhref($rtn_url);
                     $this->common->write_history_log($sess, $req['mode'].' - FAIL', $req['pp_id'], $log_array, 'people_tb');
                     return;
-                }
+		        }
                 $this->common->write_history_log($sess, 'UPDATE', $req['pp_id'], $log_array, 'people_tb');
                 break;
             
@@ -271,27 +285,18 @@ class People extends Base_admin {
                     $this->common->locationhref($rtn_url);
                     return;
                 }
-			
-                // UNIQUE KEY
-                $cnt = $this->people_tb_model->getCount(array('=' => array('pp_email' => $data_params['pp_email'])))->getData();
-                if($cnt > 0) {
-                    $log_array['msg'] = getAlertMsg('DUPLICATE_VALUES').' [Email]'; 
-                    $this->common->alert($log_array['msg']);
-                    $this->common->historyback();
-                    return;
-                }
 
                 $data_params['pp_created_at'] = date('Y-m-d H:i:s');
                 unset($data_params['pt_id']);
 
-                $log_array['params'] = $data_params;
+		        $log_array['params'] = $data_params;
                 if( ! $this->people_tb_model->doInsert($data_params)->isSuccess()) {
                     $log_array['msg'] = $this->people_tb_model->getErrorMsg();
                     $this->common->alert($log_array['msg']);
                     $this->common->locationhref($rtn_url);
                     return;
-                }
-				$act_key = $this->people_tb_model->getData();
+		        }
+		        $act_key = $this->people_tb_model->getData();
                 $rtn_url = '/'.SHOP_INFO_ADMIN_DIR.'/people/employee_detail/'.$act_key;
                 $this->common->write_history_log($sess, 'INSERT', $act_key, $log_array, 'people_tb');
                 break;
@@ -1023,7 +1028,7 @@ class People extends Base_admin {
         // :::: 결과처리 :::::
 
         // 실패 Case.
-        if(strlen($log_array['msg']) > 0) {
+        if(isset($log_array['msg']) && strlen($log_array['msg']) > 0) {
             if($req['request'] == 'ajax') {
                 $log_array['msg'] = getAlertMsg('INVALID_SUBMIT');    
                 echo json_encode($log_array);

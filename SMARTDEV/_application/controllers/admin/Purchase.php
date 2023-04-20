@@ -282,8 +282,8 @@ class Purchase extends Base_admin {
 
 
             // IMG DELETE
-            $delete_path = $this->common->getImgPath('vendor', $row_data['vd_id']);
-            $delete_filename = $delete_path.'/'.$row_data['vd_filename'];
+            $delete_path = $this->common->getImgPath('order', $row_data['o_id']);
+            $delete_filename = $delete_path.'/'.$row_data['o_filename'];
 
             $log_array['prev_data'] = $row_data;
         }
@@ -436,6 +436,8 @@ class Purchase extends Base_admin {
         );
         $req = $this->input->post();
 
+	$sess = array();
+
         switch($req['mode']) {
 
             case 'insert':
@@ -467,7 +469,7 @@ class Purchase extends Base_admin {
 
 
                 // UNIQUE KEY  
-                if( isset($req['oi_service_tag']) && strlen($req['oi_sercice_tag']) > 0 ) {
+                if( isset($req['oi_service_tag']) && strlen($req['oi_service_tag']) > 0 ) {
                     $params = array();
                     $params['=']['oi_service_tag'] = $req['oi_service_tag'];
                     $cnt = $this->order_item_tb_model->getCount($params)->getData();
@@ -519,7 +521,7 @@ class Purchase extends Base_admin {
 
 
                 // UNIQUE KEY 
-                if( isset($req['oi_service_tag']) && strlen($req['oi_sercice_tag']) > 0 ) {
+                if( isset($req['oi_service_tag']) && strlen($req['oi_service_tag']) > 0 ) {
                     $params = array();
                     $params['!=']['oi_id'] = $req['oi_id'];
                     $params['=']['oi_service_tag'] = $req['oi_service_tag'];

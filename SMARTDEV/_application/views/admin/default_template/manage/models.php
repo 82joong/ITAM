@@ -101,9 +101,15 @@ $(document).ready(function() {
             {"data": "ct_type_id"},
             {"data": "ct_id"},
             {"data": "m_model_name"},
-            {"data": "m_img"},
+	    {
+		"data": "m_img",
+		"width": "100px"
+	    },
             {"data": "m_model_no"},
-            {"data": "m_description"},
+	    {	
+		"data": "m_description",
+                "className": "text-left fs-nano",
+	    },
             {"data": "m_is_active"},
             {"data": "fs_name"},
             {

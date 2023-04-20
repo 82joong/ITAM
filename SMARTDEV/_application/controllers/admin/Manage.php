@@ -2104,7 +2104,7 @@ class Manage extends Base_admin {
     }
 
 
-    public function supplier_detail($id=0, $mode='clone') {
+    public function supplier_detail($id=0, $mode='') {
 
 		$this->load->model('supplier_tb_model');
         $row = array();
@@ -2230,7 +2230,11 @@ class Manage extends Base_admin {
                 // 주소 저장
                 if (strlen(trim($data_params['sp_address'][0])) > 0) {
                     $data_params['sp_address'] = implode('<br />', $data_params['sp_address']);
-                }
+		}else {
+
+			$data_params['sp_address'] = array();
+			unset($data_params['sp_address']);
+		}
 
                 $log_array['params'] = $data_params;
                 if( ! $this->supplier_tb_model->doUpdate($req['sp_id'], $data_params)->isSuccess()) {

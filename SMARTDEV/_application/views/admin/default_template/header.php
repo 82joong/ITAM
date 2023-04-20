@@ -84,6 +84,16 @@ License: You must have a valid license purchased only from wrapbootstrap.com (li
         <link rel="stylesheet" media="screen, print" href="<?=$assets_dir?>/css/formplugins/highlight/agate.css">
         <script src="<?=$assets_dir?>/js/formplugins/highlight/highlight.min.js"></script>
 
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-23WG1HDWC0"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-23WG1HDWC0');
+        </script>
+
     </head>
     <body class="mod-bg-1 mod-nav-link ">
         <!-- DOC: script to save and load page settings -->
@@ -149,14 +159,24 @@ License: You must have a valid license purchased only from wrapbootstrap.com (li
 
 
         <?php if(IS_REAL_SERVER == false) : ?>
-        <div class="d-flex flex-column align-items-center justify-content-center text-center bg-primary-50 border-danger">
-            <h1 class="page-error color-fusion-400">
-                <span class="text-gradient">Test Server</span>
-            </h1>
-            <h3 class="fw-500 mb-5">
-                <span class="color-danger-800">REAL Server : </span>
-                <a href="https://lab.makeshop.co.kr" target="_blank">https://lab.makeshop.co.kr</a>
-            </h3>
+        <div class="alert alert-danger alert-dismissible fade show m-2">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><i class="fal fa-times"></i></span>
+            </button>
+            <div class="d-flex align-items-center">
+                <div class="alert-icon width-8">
+                    <span class="icon-stack icon-stack-xl">
+                        <i class="base-2 icon-stack-3x color-danger-400"></i>
+                        <i class="base-10 text-white icon-stack-1x"></i>
+                        <i class="ni md-profile color-danger-800 icon-stack-2x"></i>
+                    </span>
+                </div>
+                <div class="flex-1 pl-1">
+                    <span class="h2">SandBox [ITAM] as a Service</span>
+                    <br>
+                    You can enter data freely here.
+                </div>
+            </div>
         </div>
         <?php endif;?>
 

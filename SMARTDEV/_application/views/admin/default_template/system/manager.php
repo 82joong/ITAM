@@ -13,6 +13,13 @@ $active_key = array(
 );
 $page_nav[$active_key[0]]["active"] = true;
 $page_nav[$active_key[0]]["sub"][$active_key[1]]["active"] = true;
+
+if($page_nav[$active_key[0]]["level"] > $this->_ADMIN_DATA['level']) {
+    $this->common->alert('You do not have permission to access that page.');
+    $this->common->locationhref('/');
+    exit;
+}
+
 include realpath(dirname(__FILE__).'/../').'/inc/nav.php';
 
 $title_symbol = 'fa-cog';

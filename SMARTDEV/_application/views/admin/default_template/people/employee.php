@@ -35,11 +35,9 @@ $title_symbol = 'fa-users';
                 <div class="panel-hdr">
                     <h2>Table</h2>
                     <div class="panel-toolbar">
-                        <?php /* ====== 자동동기화로 인한 수기 추가 제거 ====== ?>
                         <a href="/<?=SHOP_INFO_ADMIN_DIR?>/people/employee_detail" class="btn btn-sm btn-success waves-effect waves-themed">
                             <span class="fas fa-plus-square mr-1"></span> Add New Row
                         </a>
-                        <?php */?>
                         <?=genFullButton();?>
                     </div>
                 </div>
@@ -65,7 +63,7 @@ $title_symbol = 'fa-users';
                                     <th data-name="pp_dept" data-type="text" data-op="cn">Department</th>
                                     <th data-name="pp_company_id" data-type="select" data-value="<?=$company_data?>" data-op="eq">Company</th>
                                     <th data-name="pp_status" data-type="select" data-value="<?=$status_data?>" data-op="eq">Status</th>
-                                    <th data-name="pp_ips" data-type="none" >IP</th>
+                                    <th data-name="pp_ips" data-type="none" data-orderable="false">IP</th>
                                     <th data-name="pp_admin_id" data-type="select" data-value="<?=$is_admin_data?>" data-op="eq">Is Admin</th>
                                     <th data-name="pp_created_at" data-type="range" data-datepicker="use" data-op="bt">Created At</th>
                                     <th data-name="pp_updated_at" data-type="range" data-datepicker="use" data-op="bt">Updated At</th>
@@ -151,10 +149,11 @@ $(document).ready(function() {
 
                     var btn_act = ''; 
                     var base_url = '/<?=SHOP_INFO_ADMIN_DIR?>/people/employee_detail';
-
                     // Edit/Detail 
-                    btn_act += dtEditButton(base_url+'/'+data.pp_id);
-
+		    btn_act += dtEditButton(base_url+'/'+data.pp_id);
+		    // Delete
+		    var base_url = 'javascript:delRow(\''+data.pp_id+'\');';
+		    btn_act += dtDeleteButton(base_url);
                     return btn_act;
                 }
             }
@@ -232,4 +231,26 @@ $(document).ready(function() {
     });
 
 });
+function delRow(pp_id) {
+	if( ! pp_id ) return;
+
+	Swal.fire({
+		title: "Are you sure?",
+		text: "You won't be able to revert this!",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonText: "Yes, delete it!"
+	}).then(function(result) {
+		if (result.value) {
+			var params = {'pp_id':pp_id, 'mode':'delete'};
+			$.post('/<?=SHOP_INFO_ADMIN_DIR?>/people/employee_process', params, function(res) {
+				if(res.is_success) {
+					$('#data-table').DataTable().clear().draw();
+				} else {
+					Swal.fire("Submit Error !", '<?=getAlertMsg('CONTRACT_MANAGER')?>', "error");
+				}
+			}, 'json');
+		}
+	});
+}
 </script>

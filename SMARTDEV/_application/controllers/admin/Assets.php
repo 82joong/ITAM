@@ -1952,6 +1952,7 @@ class Assets extends Base_admin {
                 }
                 */
 
+
                 $log_array['params']['vmservice_tb'] = $data_params;
                 //echo print_r($data_params); //exit;
                 if( ! $this->vmservice_tb_model->doUpdate($req['vms_id'], $data_params)->isSuccess()) {
@@ -1961,7 +1962,7 @@ class Assets extends Base_admin {
 
                     // VMService 입력 성공시, ip 입력
                     $params = array(
-                        'ip_id' => $req['vms_ip_id'],
+                        'ip_id' => $req['ip_id'],
                         'ip'    => $req['vms_ip_address'] 
                     );
                     $res = $this->ip_class_tb_business->checkIPinClass($params);
@@ -1975,7 +1976,7 @@ class Assets extends Base_admin {
                             'ip_updated_at'         => date('Y-m-d H:i:s'),
                         );
                         $log_array['params']['ip_tb'] = $params;
-                        $this->ip_tb_model->doUpdate($req['vms_ip_id'], $params);
+                        $this->ip_tb_model->doUpdate($req['ip_id'], $params);
                     }
 
 
@@ -2591,6 +2592,7 @@ class Assets extends Base_admin {
         $assign_data['sm_data'] = $sm_data;
         $assign_data['status_type'] = $this->vmservice_tb_model->getStatusText();
 
+
         $json_data['is_success'] = TRUE;
         $json_data['msg'] = $this->load->view('admin/default_template/assets/vmservice_template.php', $assign_data, true);
         echo json_encode($json_data);
@@ -2629,9 +2631,9 @@ class Assets extends Base_admin {
 
         // 기본값
         $rack_data = array(
-            'r_location_id' => 1,    // KINX 가산
-            'r_floor'        => '5F',
-            'r_section'      => 'E',
+            'r_location_id'  => 1,
+            'r_floor'        => '3F',
+            'r_section'      => 'U',
         );
         if($id > 0) {
             //echo 'YES'; exit;
@@ -3250,7 +3252,6 @@ class Assets extends Base_admin {
         ));
 
         $secret = $this->authenticator->createSecret(32);
-        echo $secret.PHP_EOL.'<BR>';
 
         //$qrcode = $this->authenticator->getCode($secret);
         //echo $qrcode.PHP_EOL;
@@ -3260,8 +3261,6 @@ class Assets extends Base_admin {
         $name = $this->_ADMIN_DATA['login_id'];
 
         $qrcodeURL = $this->authenticator->getQRCodeGoogleUrl($provider, $name, $secret);
-        echo $qrcodeURL.PHP_EOL.'<BR>';
-        exit;
 
         // [TODO] 이미지화 시켜야 함.
         // URL에 secret key 노출됨

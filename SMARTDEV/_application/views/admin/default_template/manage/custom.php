@@ -44,7 +44,6 @@ $title_symbol = 'fa-code';
                         <table id="data-table" class="table table-sm table-striped table-bordered table-hover" style="width:100%">
                             <thead class="bg-warning-200">
                                 <tr>
-                                    <? /* <th data-name="cf_id" data-type="text" data-op="eq">ID</th> */ ?>
                                     <th data-name="cf_name" data-type="text" data-op="cn">Field Name</th>
                                     <th data-name="cf_format_element" data-type="select" data-value="<?=$element_type?>" data-op="eq">Element</th>
                                     <th data-name="cf_format" data-type="select" data-value="<?=$format_type?>" data-op="eq">Format</th>

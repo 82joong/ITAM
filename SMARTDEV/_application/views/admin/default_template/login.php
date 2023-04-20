@@ -33,6 +33,13 @@
                         <label class="form-label" for="otp">OTP</label>
                         <input type="password" id="otp" class="form-control" name="otp" required placeholder="OTP" value="" maxlength="6">
                     </div>
+                    <?php else : ?>
+                    <div class="form-group">
+                        <label class="form-label" for="otp">OTP</label>
+                        <input type="password" id="otp" class="form-control" name="otp" required placeholder="OTP" value="123123" maxlength="6" disabled>
+                        <span class="help-block">[MFA] Google OTP can be set in real server.</span>
+                    </div>
+
                     <?php endif; ?>
 
 

@@ -44,22 +44,22 @@ $title_symbol = 'fa-users';
                                     <span class="hidden-sm-down ml-1" data-i18n="content.profile">Profile</span>
                                 </a>
                             </li>
-
-                            <?php if($mode == 'update' && $row['pp_status'] == 'ACTIVE') : ?>
+			
+			    <?php if($mode == 'update' && $row['pp_status'] == 'ACTIVE') : ?>
                             <li class="nav-item">
                                 <a href="#tab_ips" class="nav-link" data-toggle="tab" role="tab" aria-selected="false">
                                     <i class="fal fa-ethernet text-primary"></i>
                                     <span class="hidden-sm-down ml-1" data-i18n="content.ips">IPs</span>
                                 </a>
                             </li>
-
-
+			<!--
                             <li class="nav-item">
                                 <a href="#tab_authinfo" class="nav-link" data-toggle="tab" role="tab" aria-selected="false">
                                     <i class="fal fa-user-secret text-danger"></i>
                                     <span class="hidden-sm-down ml-1" data-i18n="content.authinfo">AuthInfo</span>
                                 </a>
-                            </li>
+			    </li>
+			-->
                             <?php endif; ?>
                         </ul>
 
@@ -143,8 +143,8 @@ $title_symbol = 'fa-users';
                                         <div class="form-group col-6 pl-0">
                                             <label class="form-label" for="pp_login_id" data-i18n="content.login_id">
                                                 Login ID 
-                                                <span class="text-danger">*</span>
                                             </label>
+                                            <span class="text-danger">*</span>
                                             <?=getInputMask('normal', 'pp_login_id', $row['pp_login_id'], 'required')?>
                                             <span class="invalid-feedback">Please provide a LoginID.</span>
                                         </div>
@@ -152,8 +152,8 @@ $title_symbol = 'fa-users';
                                         <div class="form-group col-6 pr-0">
                                             <label class="form-label" for="pp_email" data-i18n="content.email">
                                                 Email 
-                                                <span class="text-danger">*</span>
                                             </label>
+                                            <span class="text-danger">*</span>
                                             <?=getInputMask('email', 'pp_email', $row['pp_email'], 'required')?>
                                             <span class="invalid-feedback">Please provide a Email.</span>
                                         </div>
@@ -262,20 +262,20 @@ $title_symbol = 'fa-users';
 
 
 
-                            <!-- START #tab_ips --> 
-                            <div class="tab-pane fade" id="tab_ips" role="tabpanel">
-                                <form id="area-spec" class="needs-validation" >
-                                <input type="hidden" name="ip_id" value="<?=$row['ip_id']?>">
-                                <input type="hidden" name="ip_class_id" value="<?=$row['ip_class_id']?>">
-                                <input type="hidden" name="ip_class_type" value="<?=$row['ip_class_type']?>">
-                                <input type="hidden" name="ip_class_category" value="<?=$row['ip_class_category']?>">
-                                <input type="hidden" name="pim_people_id" value="<?=$row['pp_id']?>">
-                                <input type="hidden" name="mode" value="insert">
-                                <input type="hidden" name="request" value="ajax">
-                                <input type="hidden" name="set_valid" value="people">
+			    <!-- START #tab_ips --> 
+		
+                <div class="tab-pane fade" id="tab_ips" role="tabpanel">
+				    <form id="area-spec" class="needs-validation" >
+                        <input type="hidden" name="ip_id" value="">
+                        <input type="hidden" name="ip_class_id" value="">
+                        <input type="hidden" name="ip_class_type" value="">
+                        <input type="hidden" name="ip_class_category" value="">
+                        <input type="hidden" name="pim_people_id" value="<?=$row['pp_id']?>">
+                        <input type="hidden" name="mode" value="insert">
+                        <input type="hidden" name="request" value="ajax">
+                        <input type="hidden" name="set_valid" value="people">
 
-                                <div class="form-row form-group justify-content-md-center">
-                                    
+                            <div class="form-row form-group justify-content-md-center">        
                                     <div class="form-group col-12 mb-1">
                                         <label class="form-label" for="ip_address">
                                             IPv4 Address 
@@ -284,43 +284,36 @@ $title_symbol = 'fa-users';
                                         <?=getInputMask('ipv4', 'ip_address', $set_value='', $opt='required')?>
                                         <span class="invalid-feedback">Please provide a IP Address.</span>
                                     </div>
-
-
                                     <div class="row col-12 mb-3">
                                         <div class="form-group col-4 pl-0">
                                             <label class="form-label" for="ipc_location_id" data-id="content.location">
                                                 Location 
                                             </label>
-                                            <?=getInputMask('normal', 'ipc_location_id', $row['ipc_location_id'], 'readonly')?>
+                                            <?=getInputMask('normal', 'ipc_location_id', '' , 'readonly')?>
                                         </div>
-
                                         <div class="form-group col-4 pr-0">
                                             <label class="form-label" for="ipc_cidr">
                                                 CIDR 
                                             </label>
-                                            <?=getInputMask('normal', 'ipc_cidr', $row['ipc_cidr'], 'readonly')?>
+                                            <?=getInputMask('normal', 'ipc_cidr', '', 'readonly')?>
                                         </div>
 
                                         <div class="form-group col-4 pr-0">
                                             <label class="form-label" for="ipc_name">
                                                 IP Class Name 
                                             </label>
-                                            <?=getInputMask('normal', 'ipc_name', $row['ipc_name'], 'readonly')?>
+                                            <?=getInputMask('normal', 'ipc_name', '', 'readonly')?>
                                         </div>
                                     </div>
-
-
                                     <div class="form-group col-12 mb-1">
                                         <?=getTextArea('ip_memo', $set_value='', $opt='')?>
                                         <span class="help-block">개인에게 할당되는 IP에 대한 장비(device)정보 상세 입력<span>
                                     </div>
-
                                     <div class="form-group col-12 mb-1">
                                         <div id="btn_addrow" class="btn btn-success btn-sm btn-block waves-effect waves-themed">
                                             <span><i class="fal fa-arrow-alt-to-bottom mr-2"></i>Add Row</span>
                                         </div>
                                     </div>
-
 
                                     <?php if($mode == 'update') : ?>
                                     <div class="col-12 mb-3">
@@ -344,47 +337,9 @@ $title_symbol = 'fa-users';
 
                                 </div>
                                 </form>
-                            </div> <!-- END #tab_ips -->
+			                </div> 
+				            <!-- END #tab_ips -->
 
-
-
-                            <!-- START #tab_authinfo -->
-                            <div class="tab-pane fade" id="tab_authinfo" role="tabpanel">
-
-                                <form  >
-                                <input type="hidden" name="mode" value="<?=$mode?>">
-                                <input type="hidden" name="pp_id" value="<?=$row['pp_id']?>">
-
-
-
-                                <div class="form-row form-group justify-content-md-center">
-                                    
-                                    <div class="row col-12 col-lg-8 mb-1">
-                                        <div class="form-group col-6 pl-0">
-                                            <label class="form-label" for="pp_info_userpw" data-i18n="content.info_userpw">
-                                                User PW 
-                                            </label>
-                                            <?=getInputMask('normal', 'pp_info_userpw', $row['pp_info_userpw'], 'readonly')?>
-                                        </div>
-
-                                        <div class="form-group col-6 pr-0">
-                                            <label class="form-label" for="pp_info_chpasswd" data-i18n="content.info_chpasswd">
-                                                PW Changed At 
-                                            </label>
-                                            <?=getInputMask('normal', 'pp_info_chpasswd', $row['pp_info_chpasswd'], 'readonly')?>
-                                        </div>
-                                    </div>
-                                    
-
-                                    <div class="form-group col-12 mb-1">
-                                        <div id="btn_addrow" class="btn btn-danger btn-sm btn-block waves-effect waves-themed">
-                                            <span><i class="fal fa-arrow-alt-to-bottom mr-2"></i>Reset Password</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                </form>
-                            </div>
-                            <!-- END #tab_authinfo -->
 
 
                         </div>

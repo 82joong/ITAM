@@ -14,8 +14,6 @@ abstract class Base_admin extends CI_Controller
 
 	protected $IS_SUPER = false;
 	private $super_loginids = array(
-		//'lims',
-		//'pemites',
 		'82joong',
 	);
 
@@ -165,12 +163,10 @@ abstract class Base_admin extends CI_Controller
 		// 로그인하는 페이지
 		$auth_login_url = "https://info.makeshop.co.kr/auth/?movepage=".urlencode($auth_url);
 
-        echo print_r($_COOKIE); //exit;
 		if (!isset($_COOKIE["auth_info_id"]) || !isset($_COOKIE["auth_info_key"])) { 
 			Header("Location: $auth_login_url");
             exit; 
 		}
-        echo print_r($_COOKIE); exit;
 
         // START_AUTH_MAP ADMIN
         $this->load->model('admin_tb_model');

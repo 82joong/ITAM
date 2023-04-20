@@ -111,7 +111,6 @@ class Main extends Base_admin {
 	// 상태별 현황
         $data['pie_data'] = $this->_statStatusAssets();
 
-	
 
         $data['tbl_data'] = $this->_statLocalAssets();
 
@@ -152,7 +151,6 @@ class Main extends Base_admin {
 		$params['>=']['pp_created_at'] = '2022-11-15';
 		$params['<=']['pp_created_at'] = '2022-12-15';
 	}
-
 
         $extras = array();
         $extras['fields'] = array("DATE_FORMAT(pp_created_at, '%Y-%m-%d') AS date", "COUNT(pp_id) AS cnt");
@@ -211,7 +209,8 @@ class Main extends Base_admin {
 	    
 	    // 날짜별 인원 수
 	    $params = array();
-	    $params['raw'] = array("pp_created_at <= '".$date."'  AND (pp_outed_at > '".$date."' OR pp_outed_at = '0000-00-00 00:00:00')");
+	    //$params['raw'] = array("pp_created_at <= '".$date."'  AND (pp_outed_at > '".$date."' OR pp_outed_at = '0000-00-00 00:00:00')");
+	    $params['raw'] = array("pp_created_at <= '".$date."'  AND (pp_outed_at > '".$date."' OR pp_outed_at IS NULL)");
 	    $res['daily_total'][] = $this->people_tb_model->getCount($params)->getData();
 
 
@@ -307,8 +306,8 @@ class Main extends Base_admin {
         $params = array();
         $pre_month = strtotime('-'.$previous_month.' months');
 
-        $params['>=']['am_created_at'] = date('Y-m', $pre_month);
-        $params['<=']['am_created_at'] = date('Y-m');
+        $params['>=']['am_created_at'] = date('Y-m', $pre_month).'-01';
+        $params['<=']['am_created_at'] = date('Y-m').'-01';
 
         $extras = array();
         $extras['fields'] = array("DATE_FORMAT(am_created_at, '%Y-%m') AS date", "am_assets_type_id", "COUNT(am_id) AS cnt");
@@ -316,7 +315,6 @@ class Main extends Base_admin {
         $extras['order_by'] = array("DATE_FORMAT(am_created_at, '%Y-%m') ASC", "am_assets_type_id ASC");
 
         $data = $this->assets_model_tb_model->getList($params, $extras)->getData();
-	//echo $this->assets_model_tb_model->getLastQuery(); exit;
         $data = $this->common->getDataByDuplPK($data, 'date');
 
         $begin_date = date('Y-m', $pre_month); 
