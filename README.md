@@ -7,4 +7,13 @@
 - 추후 확장팩 : 서버 현황 모니터링, 서버 논리적인 구조 현황 등 정보 수집 관리 제공# ITAM
 
 
+## Dashboard
 <img src="./DASHBOARD.jpg">
+
+
+
+## ELK 기반 SYSLOG 데이터 시각화
+<img src="./SYSLOG.png">
+
+## ELK 기반 서버별 현황 시각화
+<img src="./SERVER.png">
