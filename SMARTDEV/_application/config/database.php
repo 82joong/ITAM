@@ -103,11 +103,4 @@ $db['default'] = array(
 	'save_queries' => TRUE
 );
 
-/*
-// 구 그룹웨어 DB 정보
-$db['groupware'] = $db['default'];
-$db['groupware']['hostname'] = '121.78.48.173';
-$db['groupware']['username'] = 'lab';
-$db['groupware']['password'] = 'labzhtps940';
-$db['groupware']['database'] = 'groupware';
- */
+
