@@ -3,5 +3,5 @@
 # 2019.7.5. hamt.
 
 CREATE database itam;
-GRANT ALL privileges on itam.* to itam@localhost identified by 'make#secu' with grant option;
+GRANT ALL privileges on itam.* to itam@localhost identified by 'itam#test' with grant option;
 FLUSH PRIVILEGES;
